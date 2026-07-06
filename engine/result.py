@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-サキヨミAI — result.py（レース結果取得）
+フナヨミAI — result.py（レース結果取得）
 boatrace.jp の raceresult ページから 3連単の結果・払戻・決まり手 を取る。
 検証（verify.py）用。標準ライブラリのみ。
 

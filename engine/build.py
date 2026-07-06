@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-サキヨミAI — build.py
+フナヨミAI — build.py
 確定UIテンプレ（template/report.html）に race.json + analysis.json + texts.json を注入して
 レース専用HTMLを races/ に生成する。テンプレのデザインは一切変更しない。
 
@@ -131,7 +131,7 @@ def build_ailog(race, analysis):
     A({"h": f'▸ 推奨買い目を生成 ......... <b class="tl-p">{bets}</b>', "rev": "ab-bets", "d": 450})
     A({"h": '▸ 統合判断コンパイル ... <span class="tl-dim">6機能スコア加重＋期待値ゲート統合</span>', "rev": "ab-judge", "d": 450})
     A({"h": f'<span class="tl-fin">◎ 総合評価 {sc["total"]}/100 — 判定「{sc["verdict"]}」</span>', "rev": "verdict", "d": 700})
-    A({"h": '<span class="tl-ok">✓ 分析完了</span> <span class="tl-dim">— サキヨミAI（boatrace.jp実測）</span>', "d": 420})
+    A({"h": '<span class="tl-ok">✓ 分析完了</span> <span class="tl-dim">— フナヨミAI（boatrace.jp実測）</span>', "d": 420})
     A({"h": '<span class="tl-p">$</span> <span class="tcaret"></span>', "d": 380})
     return L
 
@@ -164,7 +164,7 @@ HYDRATE = r"""
 (function(){
 const D=window.DATA;if(!D)return;const M=D.meta,SC=D.scores;
 const q=(s)=>document.querySelector(s);const qa=(s)=>document.querySelectorAll(s);
-document.title=`サキヨミAI — ${M.place}${M.rno}R 分析ターミナル`;
+document.title=`フナヨミAI — ${M.place}${M.rno}R 分析ターミナル`;
 const tt=q('.term-title');if(tt)tt.textContent=`funayomi@lab — 詳細分析ターミナル / ${M.place} ${M.rno}R`;
 const bsec=q('#ab-bets .dw-sec');if(bsec)bsec.textContent=`推奨買い目 — 3連単 ${D.bets.length}点`;
 // 判定4段階の見た目（文字数が伸びても崩れないようサイズ・色を動的に決める）

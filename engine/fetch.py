@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-サキヨミAI — fetch.py
+フナヨミAI — fetch.py
 boatrace.jp から 出走表・直前情報・3連単オッズ を取得して race.json に整形する。
 標準ライブラリのみ（pip不要・配布前提）。
 

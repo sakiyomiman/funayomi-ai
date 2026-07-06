@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-サキヨミAI — gpts.py（GPTs原本チェーンの忠実再現・買い目ビルダー）
+フナヨミAI — gpts.py（GPTs原本チェーンの忠実再現・買い目ビルダー）
 
 原本＝開発者がGPTsで運用していた3体チェーン:
   モーター番長AI（機力ランク◎◯△×）
@@ -35,7 +35,7 @@ _brain_cache = None
 
 
 def load_brain():
-    """サキヨミAI頭脳（学習済みの知恵）を読む。無ければ空＝ベーススキルのみで動く。"""
+    """フナヨミAI頭脳（学習済みの知恵）を読む。無ければ空＝ベーススキルのみで動く。"""
     global _brain_cache
     if _brain_cache is None:
         _brain_cache = (json.loads(BRAIN_FILE.read_text(encoding="utf-8"))

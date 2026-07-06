@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-サキヨミAI — learn.py（サキヨミAI頭脳の夜間反省会）
+フナヨミAI — learn.py（フナヨミAI頭脳の夜間反省会）
 
 人間の記憶構造:
   data/races/  = エピソード記憶（レース原本・collect.pyが貯める）

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-サキヨミAI — verify.py（的中率テストハーネス）
+フナヨミAI — verify.py（的中率テストハーネス）
 過去レースに対して GPTs式（gpts.py・オッズ不使用） と 現行EV式（engine.py） の
 買い目を両方生成し、実結果と突き合わせて 的中率・回収率 を採点する。
 

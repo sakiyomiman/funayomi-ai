@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>サキヨミAI — 住之江12R 分析ターミナル</title>
+<title>フナヨミAI — 住之江12R 分析ターミナル</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -480,13 +480,13 @@ html:not([data-theme="light"]) .memo-foot{background:rgba(255,255,255,.03)}
 <div class="topbar">
   <div class="brand">
     <div class="orb starfield"></div>
-    <div><div class="nm viotext" style="font-size:24px;letter-spacing:2px">サキヨミAI</div><div class="tag">競艇予想AI研究所</div></div>
+    <div><div class="nm viotext" style="font-size:24px;letter-spacing:2px">フナヨミAI</div><div class="tag">競艇予想AI研究所</div></div>
   </div>
   <div class="rhead">
     <span class="rt">住之江 <span class="rn">12R</span></span>
     <span class="rs mono">日刊ドリーム・全員A1｜締切 20:31</span>
   </div>
-  <div class="topcmd mono"><span class="livedot"></span>サキヨミAI 分析完了 / 15.4s <span class="ok">✓</span></div>
+  <div class="topcmd mono"><span class="livedot"></span>フナヨミAI 分析完了 / 15.4s <span class="ok">✓</span></div>
   <button class="theme" onclick="toggleTheme()" aria-label="テーマ切替">
     <span class="knob starfield">
       <svg id="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
@@ -535,7 +535,7 @@ html:not([data-theme="light"]) .memo-foot{background:rgba(255,255,255,.03)}
         </div>
 
         <div class="panel aicard" style="overflow-y:auto;cursor:pointer" onclick="openAIDetail()">
-          <div class="sec-h"><span class="label">サキヨミAI — 総合評価</span><span class="livedot"></span><span class="cnt">タップで詳細分析 →</span></div>
+          <div class="sec-h"><span class="label">フナヨミAI — 総合評価</span><span class="livedot"></span><span class="cnt">タップで詳細分析 →</span></div>
           <div class="hero" style="margin:14px 0 22px;gap:24px">
             <div class="hs-ring" style="--target:82%;width:168px;height:168px"><div class="hs-in" style="width:132px;height:132px"><span class="n" id="heronum" style="font-size:56px">0</span><span class="c" style="font-size:12px">/ 100</span></div></div>
             <div class="hero-side"><div class="w" style="font-size:46px">買い</div><div class="s" style="font-size:13px;margin-top:8px">イン鉄板場×全員A1×凪。<br>1号頭固定・人気筋を避けて<br>中穴3点で期待値を取る。</div></div>
@@ -561,7 +561,7 @@ html:not([data-theme="light"]) .memo-foot{background:rgba(255,255,255,.03)}
             <div class="rec" data-combo="1-5-2" data-odds="21.4" onclick="event.stopPropagation();toggleBet(this)"><span class="rc">1-5-2</span><span class="hlbl2 h2">GOOD</span><span class="rodds">21.4<small>倍</small></span><span class="rev"><small>期待値</small>1.18</span></div>
             <div class="rec" data-combo="1-4-2" data-odds="20.4" onclick="event.stopPropagation();toggleBet(this)"><span class="rc">1-4-2</span><span class="hlbl2 h2">GOOD</span><span class="rodds">20.4<small>倍</small></span><span class="rev"><small>期待値</small>1.18</span></div>
           </div>
-          <button class="detailbtn" onclick="event.stopPropagation();openAIDetail()"><span class="db-ic">◎</span>サキヨミAIの分析結果 詳細を見る<span class="db-ar">→</span></button>
+          <button class="detailbtn" onclick="event.stopPropagation();openAIDetail()"><span class="db-ic">◎</span>フナヨミAIの分析結果 詳細を見る<span class="db-ar">→</span></button>
         </div>
       </div>
 
@@ -626,9 +626,9 @@ html:not([data-theme="light"]) .memo-foot{background:rgba(255,255,255,.03)}
   <!-- ============ モーター ============ -->
   <div class="pane" id="p-motor">
     <div class="panel">
-      <div class="sec-h"><span class="label">モーター情報 — 2連率の全国順位</span><span class="cnt">サキヨミAI・モーター分析</span></div>
+      <div class="sec-h"><span class="label">モーター情報 — 2連率の全国順位</span><span class="cnt">フナヨミAI・モーター分析</span></div>
       <table class="dt" id="motortable"></table>
-      <div style="font-size:11px;color:var(--ink3);margin-top:12px;line-height:1.7"><b style="color:var(--acc-ink)">6号 No.29 が全国5位（45.6%）で上端シグナル発火</b>。2号 No.28 は全国40位（23.2%）で下端＝カベ役として機力が乏しい。サキヨミAIは「両端シグナルのみ採用」＝この2機だけを補正に使う。</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:12px;line-height:1.7"><b style="color:var(--acc-ink)">6号 No.29 が全国5位（45.6%）で上端シグナル発火</b>。2号 No.28 は全国40位（23.2%）で下端＝カベ役として機力が乏しい。フナヨミAIは「両端シグナルのみ採用」＝この2機だけを補正に使う。</div>
     </div>
   </div>
 
@@ -668,7 +668,7 @@ html:not([data-theme="light"]) .memo-foot{background:rgba(255,255,255,.03)}
   <div class="pane" id="p-odds">
     <div class="g2">
       <div class="panel">
-        <div class="sec-h"><span class="label">AIオッズ評価 — 期待値</span><span class="cnt">サキヨミAI・オッズ分析</span></div>
+        <div class="sec-h"><span class="label">AIオッズ評価 — 期待値</span><span class="cnt">フナヨミAI・オッズ分析</span></div>
         <table class="dt">
           <tr><th class="l">枠</th><th>1着投票率</th><th>AI予測</th><th>期待値</th></tr>
           <tr class="rw hot"><td class="l"><span class="wk wk1 sm">1</span> 森高</td><td class="num">64.3%</td><td class="num hi">79.5%</td><td><span class="tag2 tag-under">やや過小</span></td></tr>
@@ -724,7 +724,7 @@ html:not([data-theme="light"]) .memo-foot{background:rgba(255,255,255,.03)}
     <div class="aim-log" id="ailog"></div>
     <div class="aim-res" id="aires">
 
-      <div class="aim-skel" id="ab-skel">■ サキヨミAI 解析中 …</div>
+      <div class="aim-skel" id="ab-skel">■ フナヨミAI 解析中 …</div>
       <div class="aim-block aim-verdict" id="ab-verdict">
         <div class="hs-ring" style="width:150px;height:150px;animation:none;background:conic-gradient(var(--acc) 82%,var(--track) 0);flex-shrink:0"><div class="hs-in" style="width:118px;height:118px"><span class="n" id="aiscore" style="font-size:48px">0</span><span class="c" style="font-size:11px">/ 100</span></div></div>
         <div>
@@ -734,7 +734,7 @@ html:not([data-theme="light"]) .memo-foot{background:rgba(255,255,255,.03)}
       </div>
 
       <div class="aim-block" id="ab-agents">
-        <div class="dw-sec" style="margin-top:0">分析機能の内訳 — サキヨミAIが見た6つの視点</div>
+        <div class="dw-sec" style="margin-top:0">分析機能の内訳 — フナヨミAIが見た6つの視点</div>
         <div class="agentgrid">
           <div class="al" id="ag0"><div class="alh"><span class="aln">コース分析</span><span class="als hi">94</span></div><div class="alt">住之江1C 61.8%・振り6mのイン有利。凪でスリット揃い勝率上昇。頭は堅い。</div></div>
           <div class="al" id="ag1"><div class="alh"><span class="aln">選手力分析</span><span class="als hi">88</span></div><div class="alt">全員A1だが当地勝率に差。森高7.61＝イン最適。5号渡邉 当地2連率92.9%は2着筆頭。</div></div>
@@ -947,7 +947,7 @@ const AILOG=[
  {h:'▸ 推奨買い目を生成 ......... <b class="tl-p">1-6-2 / 1-5-2 / 1-4-2</b>',rev:'ab-bets',d:450},
  {h:'▸ 統合判断コンパイル ... <span class="tl-dim">6機能スコア加重＋期待値ゲート結果を統合</span>',rev:'ab-judge',d:450},
  {h:'<span class="tl-fin">◎ 総合評価 82/100 — 判定「買い」</span>',rev:'verdict',d:700},
- {h:'<span class="tl-ok">✓ 分析完了 15.4s</span> <span class="tl-dim">— サキヨミAI（検証8/100レース・boatrace.jp実測）</span>',d:420},
+ {h:'<span class="tl-ok">✓ 分析完了 15.4s</span> <span class="tl-dim">— フナヨミAI（検証8/100レース・boatrace.jp実測）</span>',d:420},
  {h:'<span class="tl-p">$</span> <span class="tcaret"></span>',d:380},
 ];
 function openAIDetail(){

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-サキヨミAI — engine.py（決定的計算エンジン・LLM不使用）
+フナヨミAI — engine.py（決定的計算エンジン・LLM不使用）
 race.json → 台帳×選手力×番長×荒れ度×スジ×期待値ゲート×資金配分 → analysis.json
 
 設計正本:
@@ -151,7 +151,7 @@ def areness(race, motors, pscores):
         if p["w"] in (2, 3, 4) and (motors[p["w"]]["rank"] in ("◎",) or motors[p["w"]]["upper"]) and p["st"] <= 0.16:
             atk.append(p["w"])
     if atk: score += 2.0; flags.append(f"攻撃筋{atk}+2.0")
-    # L7 bancho_input（GPTs原本チェーンの配線・2026-07-05Sakiyomi AI Lab 設計）
+    # L7 bancho_input（GPTs原本チェーンの配線・2026-07-05Funayomi AI Lab 設計）
     # ⚠️ 07-05監査(15R)の教訓で厳格化:
     #   - ◯まで数えると15/15レースで発火し全体が荒れ側に倒れる → 強機=◎のみ
     #   - 1号機弱は「×かつ5位以下」の明確な弱機のみ（△4位で+1.5→鉄板誤NO_GOの実害）
