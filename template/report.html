@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フナヨミAI — 住之江12R 分析ターミナル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+@property --p { syntax:'<percentage>'; inherits:false; initial-value:0%; }
+:root{
+  --bg:#09090D; --surface:rgba(255,255,255,.032); --surface2:rgba(255,255,255,.055);
+  --solid:#111117; --bord:rgba(255,255,255,.085); --bord2:rgba(255,255,255,.17); --hair:rgba(255,255,255,.05);
+  --ink:#F4F4F7; --ink2:#B9BAC6; --ink3:#7E8090; --ink4:#4C4E5E;
+  --acc:#9F86FF; --acc-soft:#B79DFF; --acc-deep:#6D4FE0;
+  --acc-bg:rgba(139,114,255,.11); --acc-bord:rgba(139,114,255,.4); --acc-ink:#CBB8FD;
+  --star-grad:linear-gradient(105deg,#5B3FD0,#8B72FF 55%,#B79DFF);
+  --vio-grad:linear-gradient(100deg,#6D4FE0,#8B72FF 45%,#B79DFF);
+  --fire-grad:linear-gradient(105deg,#B01206,#F03B22 52%,#FF7A3C);
+  --fire-soft:linear-gradient(105deg,#D2402A,#F2603C); --fire-glow:rgba(240,59,34,.4);
+  --track:rgba(255,255,255,.07); --dim:rgba(255,255,255,.16); --glow:rgba(139,114,255,.28);
+  --blob:rgba(124,92,255,.13); --pos:#34D399; --neg:#F87171;
+  --ustart:#26262E; --uend1:#6D4FE0; --uend2:#A78BFA;
+}
+[data-theme="light"]{
+  --bg:#FBF6F0; --surface:#FFFFFF; --surface2:#F8F1E8; --solid:#FFFFFF;
+  --bord:#EBDECE; --bord2:#DCC7AE; --hair:#F0E6D9;
+  --ink:#2F2A25; --ink2:#6B6155; --ink3:#9E9080; --ink4:#C3B6A6;
+  --acc:#D9531E; --acc-soft:#E9A33A; --acc-deep:#BB4214;
+  --acc-bg:rgba(217,83,30,.08); --acc-bord:rgba(217,83,30,.32); --acc-ink:#BB4214;
+  --star-grad:linear-gradient(105deg,#BB4214,#D9531E 48%,#E9A33A);
+  --vio-grad:linear-gradient(100deg,#BB4214,#D9531E 45%,#E9A33A);
+  --fire-grad:linear-gradient(105deg,#B01206,#E63A20 52%,#FF7A3C);
+  --fire-soft:linear-gradient(105deg,#D2402A,#F2603C); --fire-glow:rgba(230,58,32,.3);
+  --track:#F0E6D9; --dim:#DCC7AE; --glow:rgba(217,83,30,.18); --blob:rgba(233,163,58,.10);
+  --pos:#0E9F6E; --neg:#D64545;
+  --ustart:#EBDECE; --uend1:#D9531E; --uend2:#E9A33A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk','Noto Sans JP',sans-serif;font-size:14px;line-height:1.5;padding:11px 14px;display:flex;flex-direction:column;gap:8px;overflow:hidden;position:relative}
+body,.panel,.topbar,.chip,.bet,.badge,td,th,.btn,.tab,.card,.kv2 div{transition:background-color .45s ease,color .45s ease,border-color .45s ease}
+body::before{content:'';position:fixed;width:860px;height:860px;top:-320px;right:-220px;border-radius:50%;background:radial-gradient(circle,var(--blob),transparent 65%);filter:blur(90px);z-index:0;pointer-events:none;animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(-90px,70px) scale(1.1)}}
+.mono{font-family:'JetBrains Mono',monospace}
+.label{font-size:10.5px;letter-spacing:2px;color:var(--ink3);font-weight:500}
+.starfield{position:relative;background:var(--star-grad);overflow:hidden;isolation:isolate;color:#fff}
+.starfield::before,.fire::before{content:'';position:absolute;inset:-2px;z-index:0;opacity:.55;background-image:radial-gradient(rgba(255,255,255,.95) 1px,transparent 1.5px),radial-gradient(rgba(255,255,255,.55) 1px,transparent 1.7px),radial-gradient(rgba(255,255,255,.3) 1.3px,transparent 1.9px);background-size:26px 26px,44px 44px,62px 62px;background-position:0 0,14px 20px,30px 8px;animation:sparkle 10s linear infinite}
+.starfield::after,.fire::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.16) 50%,transparent 60%);transform:translateX(-120%);animation:sweep 5s ease-in-out infinite}
+.starfield>*{position:relative;z-index:1}
+.fire{position:relative;background:var(--fire-grad);overflow:hidden;isolation:isolate;color:#fff}
+.fire>*{position:relative;z-index:1}
+@keyframes sparkle{to{background-position:180px 26px,-120px 64px,90px -62px}}
+@keyframes sweep{18%,100%{transform:translateX(120%)}}
+@keyframes flame{50%{box-shadow:0 0 40px var(--fire-glow),0 0 14px rgba(255,122,60,.55);filter:brightness(1.13) saturate(1.18)}}
+.viotext{background-image:radial-gradient(rgba(255,255,255,.9) 1px,transparent 1.4px),radial-gradient(rgba(255,255,255,.5) 1px,transparent 1.6px),var(--vio-grad);background-size:22px 22px,36px 36px,100% 100%;background-position:0 0,12px 9px,0 0;-webkit-background-clip:text;background-clip:text;color:transparent;animation:viodrift 9s linear infinite}
+@keyframes viodrift{to{background-position:150px 22px,-100px 44px,0 0}}
+
+.topbar{position:relative;z-index:2;flex-shrink:0;display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--bord);border-radius:13px;padding:8px 15px;backdrop-filter:blur(22px);animation:rise .5s cubic-bezier(.2,.9,.3,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.brand{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.brand .orb{width:24px;height:24px;border-radius:8px}
+.brand .nm{font-family:'Noto Serif JP',serif;font-weight:700;font-size:14.5px;letter-spacing:.5px}
+.brand .tag{font-size:9px;letter-spacing:2px;color:var(--ink3);font-weight:500}
+.rhead{display:flex;align-items:baseline;gap:11px;margin-left:6px}
+.rhead .rt{font-family:'Noto Serif JP',serif;font-size:19px;font-weight:700}
+.rhead .rt .rn{color:var(--acc-ink)}
+.rhead .rs{font-size:11px;color:var(--ink3)}
+.topcmd{margin-left:auto;color:var(--ink2);font-size:11.5px;display:flex;align-items:center;gap:8px}
+.topcmd .ok{color:var(--acc-ink)}
+.livedot{width:7px;height:7px;border-radius:50%;background:var(--acc);animation:ping 2.2s infinite;flex-shrink:0}
+@keyframes ping{0%{box-shadow:0 0 0 0 var(--glow)}70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.theme{cursor:pointer;width:54px;height:28px;border-radius:15px;flex-shrink:0;background:var(--surface2);border:1px solid var(--bord);position:relative;padding:0}
+.theme .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:left .35s cubic-bezier(.3,1.2,.4,1);color:#fff}
+[data-theme="light"] .theme .knob{left:29px}
+.theme svg{width:11px;height:11px;position:relative;z-index:1}
+
+.tabbar{position:relative;z-index:2;flex-shrink:0;display:flex;gap:5px;padding:2px;overflow-x:auto}
+.tab{cursor:pointer;font-family:inherit;background:transparent;border:1px solid transparent;border-radius:11px;padding:8px 17px;font-size:13.5px;color:var(--ink3);white-space:nowrap;font-weight:500;transition:all .18s}
+.tab:hover{color:var(--ink)}
+.tab.active{background:var(--surface);border-color:var(--bord2);color:var(--ink);font-weight:700;box-shadow:0 0 16px var(--glow)}
+.tab .n{font-size:9px;color:var(--acc-ink);margin-left:5px;font-weight:700}
+
+.content{flex:1;min-height:0;position:relative;z-index:1;overflow:hidden}
+.pane{display:none;height:100%;overflow-y:auto;animation:fade .3s ease}
+.pane.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.panel{position:relative;background:var(--surface);border:1px solid var(--bord);border-radius:15px;padding:14px 16px;backdrop-filter:blur(22px)}
+.panel:hover{border-color:var(--bord2)}
+.sec-h{display:flex;align-items:center;gap:8px;margin-bottom:11px}
+.sec-h .cnt{margin-left:auto;font-size:10px;color:var(--ink4);letter-spacing:1px}
+.g3{display:grid;grid-template-columns:250px 1fr 380px;gap:10px;height:100%}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.col{display:flex;flex-direction:column;gap:10px;min-height:0}
+
+/* wk badges */
+.wk{width:23px;height:23px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;border:1px solid rgba(0,0,0,.12);flex-shrink:0}
+.wk.sm{width:19px;height:19px;font-size:11px;border-radius:5px}
+.wk.lg{width:40px;height:40px;font-size:20px;border-radius:10px}
+.wk1{background:#FFF;color:#1A1A1A}.wk2{background:#1A1A1A;color:#fff;border-color:rgba(255,255,255,.25)}.wk3{background:#E4362C;color:#fff}.wk4{background:#2C63C8;color:#fff}.wk5{background:#F2CB2E;color:#1A1A1A}.wk6{background:#2AA45A;color:#fff}
+
+/* SUMMARY */
+.race-big{font-family:'Noto Serif JP',serif;font-size:38px;font-weight:700;letter-spacing:1px;line-height:1.1;margin-top:4px}
+.race-sub{font-size:11px;color:var(--ink3);margin:6px 0 8px;line-height:1.6}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--bord);border-radius:15px;padding:3px 11px;font-size:11px;color:var(--ink2)}
+.badge.acc{background:var(--acc-bg);border-color:var(--acc-bord);color:var(--acc-ink);font-weight:700}
+.kv2{display:grid;grid-template-columns:1fr 1fr;gap:5px 7px;margin-top:9px}
+.kv2 div{background:var(--surface2);border:1px solid var(--hair);border-radius:9px;padding:5px 9px}
+.kv2 .k{display:block;font-size:9px;letter-spacing:1px;color:var(--ink4)}
+.kv2 .v{font-size:12.5px;font-weight:700}.kv2 .v.ok{color:var(--acc-ink)}
+
+.hero{display:flex;align-items:center;gap:16px;margin:4px 0 12px}
+.hs-ring{width:118px;height:118px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--acc) var(--p),var(--track) 0);animation:fill 1.5s cubic-bezier(.3,.8,.3,1) .4s both;filter:drop-shadow(0 0 15px var(--glow))}
+@keyframes fill{from{--p:0%}to{--p:var(--target)}}
+.hs-in{width:92px;height:92px;border-radius:50%;background:var(--solid);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hs-in .n{font-family:'JetBrains Mono',monospace;font-size:37px;font-weight:700;line-height:1}
+.hs-in .c{font-size:10px;color:var(--ink3);margin-top:2px}
+.hero-side .w{font-family:'Noto Serif JP',serif;font-size:30px;font-weight:700;color:var(--acc-ink);line-height:1.1}
+.hero-side .s{font-size:11.5px;color:var(--ink3);margin-top:5px;line-height:1.7}
+.radarwrap{display:flex;justify-content:center;margin:0 0 6px}
+.radar-poly{fill:var(--acc-bg);stroke:var(--acc);stroke-width:1.6}
+.radar-grid{fill:none;stroke:var(--hair);stroke-width:1}
+.radar-axis{stroke:var(--hair);stroke-width:1}
+.radar-lbl{font-size:10px;fill:var(--ink3);font-family:'Noto Sans JP',sans-serif}
+.radar-val{font-size:10.5px;font-weight:700;fill:var(--acc-ink);font-family:'JetBrains Mono',monospace}
+.radar-dot{fill:var(--acc)}
+.yomirow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:2px 0 11px}
+.yomi{display:inline-flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--bord);border-radius:10px;padding:4px 10px 4px 7px;font-size:12px;font-weight:700}
+.yomi.mute{color:var(--ink4)}
+.mk{font-size:14px;line-height:1}.mk-o{color:#F03B22}.mk-w{color:var(--acc)}.mk-s{color:var(--acc-soft)}.mk-c{color:var(--ink3)}
+.yomi.mute .mk{color:var(--ink4);font-size:12px}
+.buytable{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:11px}
+.buytable th{font-size:9px;letter-spacing:1px;color:var(--ink4);font-weight:500;text-align:right;padding:0 8px 7px}
+.buytable th.l{text-align:left}
+.buytable td{padding:8px;border-top:1px solid var(--hair);text-align:right;vertical-align:middle}
+.buytable td.l{text-align:left;display:flex;align-items:center;gap:8px}
+.buytable b.mono{font-size:15px;letter-spacing:.5px}
+.buytable .pay{color:var(--acc-ink);font-weight:700}
+.buytable .mono small{font-size:10px;color:var(--ink3);font-weight:400}
+.fdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.fire-dot{background:var(--fire-grad);box-shadow:0 0 8px var(--fire-glow)}.g-dot{background:var(--fire-soft)}
+.memobtn{width:100%;cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;background:var(--acc-bg);border:1px solid var(--acc-bord);border-radius:12px;padding:11px 16px;margin-bottom:11px;color:var(--acc-ink);font-size:13.5px;font-weight:700;transition:background .2s,box-shadow .2s}
+.memobtn:hover{background:var(--acc-bord);box-shadow:0 0 18px var(--glow)}
+.memobtn span:last-child{font-size:11px;font-weight:500;opacity:.85}
+.sigchips{display:flex;flex-direction:column;gap:6px}
+.sigchip{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--acc-bord);border-left:3px solid var(--acc);border-radius:10px;padding:7px 12px;font-size:12px}
+.sigchip.mute{border-color:var(--hair);border-left-color:var(--ink4)}
+.sigchip .ic{color:var(--acc-ink);font-weight:900;font-size:11px;flex-shrink:0}
+.sigchip.mute .ic{color:var(--ink4)}
+.sigchip .tx{color:var(--ink2)}.sigchip .tx b{color:var(--ink);font-weight:700}
+.simu p{font-size:12.5px;line-height:1.85;color:var(--ink2)}.simu b{color:var(--ink);font-weight:700}.simu .sq{color:var(--acc-ink);font-weight:700}
+.subh{font-size:9.5px;letter-spacing:1.5px;color:var(--ink3);font-weight:500;margin-bottom:7px}
+.resbar{display:flex;align-items:center;gap:10px;margin-top:9px;background:var(--surface2);border:1px solid var(--bord);border-radius:10px;padding:8px 12px;font-size:12px}
+.resbar .rtag{background:var(--ink);color:var(--bg);font-size:9px;font-weight:900;letter-spacing:1px;border-radius:6px;padding:2px 8px}
+.resbar .rr{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px}
+.resbar .rj{margin-left:auto;color:var(--ink3);font-size:11px}.resbar .rj b{color:var(--acc-ink)}
+
+/* generic data table */
+.dt{width:100%;border-collapse:collapse;font-size:12.5px}
+.dt th{font-size:9px;letter-spacing:.6px;color:var(--ink4);font-weight:500;text-align:right;padding:4px 8px 8px;border-bottom:1px solid var(--bord);white-space:nowrap;vertical-align:bottom}
+.dt th.l{text-align:left}
+.dt td{padding:8px;border-bottom:1px solid var(--hair);text-align:right;white-space:nowrap;vertical-align:middle}
+.dt td.l{text-align:left}
+.dt tr.rw{cursor:pointer;transition:background .16s}
+.dt tr.rw:hover td{background:var(--surface2)}
+.dt tr.rw.hot td{background:var(--acc-bg)}
+.dt tr.rw.sel td{background:var(--acc-bg)}
+.dt tr.rw.sel td:first-child{box-shadow:inset 3px 0 0 var(--acc)}
+.dt .nm{font-size:14px;font-weight:700;line-height:1.15}
+.dt .mt{font-size:9px;color:var(--ink4)}
+.dt .num{font-family:'JetBrains Mono',monospace}
+.dt .num b{color:var(--ink);font-weight:700}
+.dt .hi b,.dt .hi{color:var(--acc-ink)!important;font-weight:700}
+.dt .sub{font-size:9.5px;color:var(--ink4)}
+.cls{font-size:8.5px;font-weight:700;padding:1px 5px;border-radius:5px;background:var(--surface2);border:1px solid var(--bord);color:var(--ink3);margin-left:4px;vertical-align:2px}
+.cls.a1{background:var(--acc-bg);border-color:var(--acc-bord);color:var(--acc-ink)}
+.mini{display:inline-block;width:56px;height:9px;border-radius:3px;background:var(--track);overflow:hidden;vertical-align:middle}
+.mini i{display:block;height:9px;border-radius:3px;background:var(--dim)}
+.mini i.hot{background:var(--star-grad)}
+.tag2{font-size:10px;font-weight:700;padding:2px 9px;border-radius:8px}
+.tag-under{background:rgba(52,211,153,.14);color:var(--pos)}
+.tag-over{background:var(--surface2);border:1px solid var(--hair);color:var(--ink4)}
+.wr-bar{display:flex;height:15px;border-radius:5px;overflow:hidden;background:var(--track);min-width:120px}
+.wr-bar i{height:15px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
+.wr-1{background:#3B7DD8}.wr-2{background:#5DA1E8}.wr-3{background:#8FC0F0}.wr-o{background:var(--dim)}
+.expbar{position:relative;height:34px;border-radius:9px;background:var(--track);overflow:hidden;margin-bottom:8px}
+.expbar i{position:absolute;left:0;top:0;height:34px;border-radius:9px;background:var(--star-grad);box-shadow:0 0 14px var(--glow);display:flex;align-items:center;padding-left:12px;color:#fff;font-weight:700;font-size:14px}
+.expbar .avg{position:absolute;top:0;height:34px;border-left:2px dashed var(--ink4)}
+.expbar .lbl{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ink3)}
+
+.footer{display:flex;justify-content:space-between;font-size:10px;color:var(--ink4);flex-shrink:0;padding:0 4px;position:relative;z-index:1}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--dim);border-radius:5px}
+
+/* drawers */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(3px)}
+.overlay.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:420px;z-index:50;background:var(--solid);border-left:1px solid var(--bord2);transform:translateX(105%);transition:transform .45s cubic-bezier(.3,1,.3,1);padding:24px;overflow-y:auto}
+.drawer.on{transform:none}
+.dw-close{position:absolute;top:16px;right:16px;cursor:pointer;background:var(--surface2);border:1px solid var(--bord);border-radius:9px;color:var(--ink2);font-size:12px;padding:5px 11px;font-family:inherit}
+.dw-head{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.dw-name{font-family:'Noto Serif JP',serif;font-size:25px;font-weight:700;line-height:1.2}
+.dw-meta{font-size:11px;color:var(--ink3);margin-top:1px}
+.dw-ai{background:var(--acc-bg);border:1px solid var(--acc-bord);border-radius:11px;padding:10px 14px;font-size:12.5px;line-height:1.8;color:var(--ink);margin:14px 0}
+.dw-ai b{color:var(--acc-ink)}
+.dw-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.dw-cell{background:var(--surface2);border:1px solid var(--hair);border-radius:11px;padding:10px 8px;text-align:center}
+.dw-cell .k{display:block;font-size:9px;letter-spacing:1px;color:var(--ink4)}
+.dw-cell .v{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:700;line-height:1.4}
+.dw-cell .v.hot{color:var(--acc-ink)}.dw-cell .v small{font-size:11px;color:var(--ink3)}
+.dw-sec{font-size:10px;letter-spacing:1.5px;color:var(--ink3);margin:15px 0 8px}
+.dw-bar{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:11.5px}
+.dw-bar .bk{width:66px;color:var(--ink3);flex-shrink:0}
+.dw-bar .bt{flex:1;height:7px;border-radius:4px;background:var(--track);overflow:hidden}
+.dw-bar .bf{height:7px;border-radius:4px;background:var(--star-grad)}
+.dw-bar .bv{font-family:'JetBrains Mono',monospace;font-weight:700;width:38px;text-align:right}
+
+/* AI詳細分析 — 全画面ターミナルモーダル */
+.aimodal{position:fixed;inset:22px;z-index:55;background:var(--solid);border:1px solid var(--bord2);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(34px) scale(.96);transition:opacity .35s ease,transform .5s cubic-bezier(.25,1.1,.35,1);box-shadow:0 40px 120px rgba(0,0,0,.6)}
+.aimodal.on{opacity:1;pointer-events:auto;transform:none}
+.term-head{flex-shrink:0;display:flex;align-items:center;gap:13px;background:var(--surface2);border-bottom:1px solid var(--bord);padding:11px 18px}
+.term-dots{display:flex;gap:7px;flex-shrink:0}
+.term-dots i{width:12px;height:12px;border-radius:50%;display:block}
+.term-title{font-size:12px;color:var(--ink2);letter-spacing:.5px}
+.term-live{margin-left:auto;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink3)}
+.aim-body{flex:1;display:grid;grid-template-columns:minmax(340px,430px) 1fr;min-height:0}
+.aim-log{border-right:1px solid rgba(255,255,255,.09);padding:20px 22px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:2.05;background:#0B0B10;color:#D9DAE6}
+.tl{opacity:0;transform:translateY(5px);animation:tlin .28s ease forwards;white-space:pre-wrap;word-break:break-all}
+@keyframes tlin{to{opacity:1;transform:none}}
+.tl.cmd{color:#fff;font-weight:700}
+.tl.sub{color:#7E8195;font-size:11.5px;line-height:1.8}
+.tl.sub b{color:#C9CBDA;font-weight:700}
+.tl-p{color:#B79DFF}
+[data-theme="light"] .tl-p{color:#F0A868}
+.tl-ok{color:#4ADE80}.tl-warn{color:#FFB454}.tl-dim{color:#6E7080}
+.tl-fin{color:#FF7A3C;font-weight:700;font-size:14px}
+.tcaret{display:inline-block;width:8px;height:15px;background:#B79DFF;vertical-align:-2px;margin-left:3px;animation:blink .9s steps(1) infinite}
+[data-theme="light"] .tcaret{background:#F0A868}
+@keyframes blink{50%{opacity:0}}
+.aim-res{padding:24px 30px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.aim-block{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .55s cubic-bezier(.2,.9,.3,1)}
+.aim-block.in{opacity:1;transform:none}
+.aim-verdict{display:none;align-items:center;gap:28px;transition:none}
+.aim-verdict.in{display:flex;animation:boom .7s cubic-bezier(.25,1.3,.4,1) both}
+@keyframes boom{0%{opacity:0;transform:scale(1.55)}62%{transform:scale(.97)}100%{opacity:1;transform:scale(1)}}
+.aim-skel{display:flex;align-items:center;justify-content:center;gap:12px;min-height:150px;border:1px dashed var(--bord2);border-radius:16px;color:var(--ink3);font-size:12.5px;letter-spacing:1.5px;animation:skelpulse 1.4s ease-in-out infinite}
+@keyframes skelpulse{50%{opacity:.4}}
+.aim-skel.off{display:none}
+.agentgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.agentgrid .al{opacity:0;transform:translateY(12px);transition:opacity .45s ease,transform .5s cubic-bezier(.2,.9,.3,1)}
+.agentgrid .al.in{opacity:1;transform:none}
+@media(max-width:920px){.aim-body{grid-template-columns:1fr}.aim-log{max-height:36%}}
+
+.memo{position:fixed;top:0;right:0;bottom:0;width:400px;z-index:60;background:var(--solid);border-left:1px solid var(--bord2);transform:translateX(105%);transition:transform .45s cubic-bezier(.3,1,.3,1);display:flex;flex-direction:column}
+.memo.on{transform:none}
+.memo-head{background:var(--star-grad);color:#fff;padding:16px 22px;position:relative;overflow:hidden;isolation:isolate;flex-shrink:0}
+.memo-head .mt{font-family:'Noto Serif JP',serif;font-size:18px;font-weight:700;text-align:center}
+.memo-head .ms{font-size:11px;opacity:.9;text-align:center;margin-top:1px}
+.memo-close{position:absolute;top:16px;left:16px;cursor:pointer;background:rgba(255,255,255,.2);border:none;border-radius:8px;color:#fff;font-size:14px;padding:4px 10px;z-index:2}
+.memo-body{padding:18px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px}
+.memo-body>*{flex-shrink:0}
+.memo-synth{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border:1px solid var(--bord);border-radius:12px;padding:13px 16px}
+.memo-synth .sk{font-size:12px;color:var(--ink3)}.memo-synth .sv{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700}
+.memo-amt{display:flex;gap:6px}
+.memo-amt button{flex:1;cursor:pointer;font-family:inherit;background:var(--surface2);border:1px solid var(--bord);border-radius:9px;padding:8px 4px;font-size:12.5px;font-weight:700;color:var(--ink2);transition:all .15s}
+.memo-amt button:hover{border-color:var(--acc-bord)}.memo-amt button.on{background:var(--star-grad);border-color:transparent;color:#fff}
+.memo-rows{border:1px solid var(--bord);border-radius:12px;overflow:hidden}
+.memo-row{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;padding:10px 12px 10px 14px;border-bottom:1px solid var(--hair);align-items:center}
+.memo-row:last-child{border-bottom:none}
+.memo-row .mr-c{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
+.memo-row .mr-o{font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace}
+.memo-row .mr-pay{font-size:11px;font-family:'JetBrains Mono',monospace;text-align:right;margin-top:3px}
+.memo-row .mr-pay b{color:var(--ink2)}.memo-row .mr-pay .plus{color:var(--pos);font-weight:700}.memo-row .mr-pay .minus{color:var(--neg);font-weight:700}
+.mr-amtwrap{display:flex;align-items:center;gap:3px;justify-content:flex-end;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink2);font-weight:700}
+.mr-in{width:56px;background:var(--surface2);border:1px solid var(--bord);border-radius:7px;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;padding:4px 7px;text-align:right;-moz-appearance:textfield}
+.mr-in::-webkit-outer-spin-button,.mr-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.mr-in:focus{outline:none;border-color:var(--acc-bord);box-shadow:0 0 8px var(--glow)}
+.mr-del{cursor:pointer;background:var(--surface2);border:1px solid var(--bord);border-radius:7px;color:var(--ink3);font-size:10.5px;padding:5px 9px;font-family:inherit;flex-shrink:0;transition:all .15s}
+.mr-del:hover{color:var(--neg);border-color:var(--neg)}
+.memo-clear{cursor:pointer;width:100%;background:transparent;border:1px dashed var(--bord2);border-radius:9px;color:var(--ink3);font-size:11px;padding:7px;font-family:inherit;transition:all .15s}
+.memo-clear:hover{color:var(--neg);border-color:var(--neg)}
+.memo-empty{border:1px dashed var(--bord2);border-radius:12px;padding:24px 14px;text-align:center;color:var(--ink3);font-size:12px;line-height:1.9}
+.memo-help{border:1px solid var(--hair);border-radius:11px;overflow:hidden}
+.memo-help>button{width:100%;cursor:pointer;background:var(--surface2);border:none;padding:9px 13px;font-family:inherit;font-size:11.5px;font-weight:700;color:var(--ink2);display:flex;justify-content:space-between;align-items:center}
+.memo-help>button .ar{transition:transform .25s}
+.memo-help.open>button .ar{transform:rotate(180deg)}
+.mh-body{display:none;padding:11px 13px;font-size:10.5px;color:var(--ink3);line-height:1.75;flex-direction:column;gap:8px}
+.memo-help.open .mh-body{display:flex}
+.mh-body b{color:var(--ink2)}
+.memo-foot{background:var(--surface2);border-top:1px solid var(--bord);padding:14px 22px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.memo-foot .fr{display:flex;justify-content:space-between;align-items:baseline}
+.memo-foot .fk{font-size:12px;color:var(--ink3);font-weight:700}
+.memo-foot .fv{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:900}.memo-foot .fv.big{font-size:26px;color:var(--acc-ink)}
+.memo-note{font-size:10px;color:var(--ink4);text-align:center;line-height:1.5}
+.hlbl2{display:inline-block;font-size:9.5px;font-weight:900;letter-spacing:.8px;padding:2px 8px;border-radius:7px;color:#fff}
+.hlbl2.h3{background:var(--fire-grad);box-shadow:0 0 10px var(--fire-glow);animation:flame 1.6s ease-in-out infinite}
+.hlbl2.h2{background:var(--fire-soft)}.hlbl2.cold{background:var(--surface2);border:1px solid var(--hair);color:var(--ink4)}
+
+.memofab{width:100%;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:13px;background:var(--star-grad);border:none;border-radius:16px;padding:15px 18px;position:relative;overflow:hidden;isolation:isolate;color:#fff;box-shadow:0 0 26px var(--glow);transition:transform .2s,box-shadow .2s}
+.memofab::before{content:'';position:absolute;inset:-2px;z-index:0;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.9) 1px,transparent 1.5px),radial-gradient(rgba(255,255,255,.5) 1px,transparent 1.7px);background-size:24px 24px,40px 40px;background-position:0 0,12px 9px;animation:sparkle 9s linear infinite}
+.memofab:hover{transform:translateY(-3px);box-shadow:0 0 38px var(--glow)}
+.memofab>*{position:relative;z-index:1}
+.mf-ic{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mf-ic svg{width:21px;height:21px}
+.mf-tx{display:flex;flex-direction:column;text-align:left;line-height:1.3}
+.mf-tx b{font-size:16px;font-weight:700}.mf-tx small{font-size:11px;opacity:.9}
+.mf-badge{margin-left:auto;background:#fff;color:var(--acc-deep);font-weight:900;font-size:14px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+.aicard{transition:border-color .2s,box-shadow .2s}
+.aicard:hover{border-color:var(--acc-bord);box-shadow:0 0 30px var(--glow)}
+.scorebars{display:flex;flex-direction:column;gap:8px}
+.sb{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.sb .sbk{width:56px;color:var(--ink3);flex-shrink:0}
+.sb .sbt{flex:1;height:9px;border-radius:5px;background:var(--track);overflow:hidden}
+.sb .sbf{height:9px;border-radius:5px;width:0;background:var(--star-grad);box-shadow:0 0 8px var(--glow);animation:sbgrow 1.1s cubic-bezier(.25,.9,.3,1) .5s forwards}
+@keyframes sbgrow{to{width:var(--sw)}}
+.sb .sbv{font-family:'JetBrains Mono',monospace;font-weight:700;width:26px;text-align:right;color:var(--acc-ink)}
+.reclist{display:flex;flex-direction:column;gap:6px;margin-bottom:9px}
+.rec{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--hair);border-radius:10px;padding:7px 11px 7px 13px;cursor:pointer;transition:background .16s,border-color .16s}
+.rec:hover{background:var(--acc-bg)}
+.rec.top{background:linear-gradient(90deg,var(--fire-glow),var(--surface2) 62%);border-color:var(--fire-glow)}
+.rec.sel{box-shadow:inset 3px 0 0 var(--acc)}
+.rec .rc{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:900;letter-spacing:.5px}
+.rec .rodds{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink3);text-align:right;line-height:1.15}
+.rec .rodds small{font-size:9px;color:var(--ink4);margin-left:1px}
+.rec .rev{font-family:'JetBrains Mono',monospace;font-size:23px;font-weight:900;color:var(--acc-ink);min-width:78px;text-align:right;line-height:1;white-space:nowrap}
+.rec .rev small{font-family:'Noto Sans JP',sans-serif;font-size:9px;letter-spacing:.3px;color:var(--ink4);font-weight:700;margin-right:4px;vertical-align:2px}
+.betstack{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.bet{border:none;border-radius:12px;padding:10px 15px;display:flex;align-items:center;gap:12px}
+.bet .combo{font-size:21px;font-weight:900;letter-spacing:1.2px;font-family:'JetBrains Mono',monospace}
+.bet .hlbl{font-size:9.5px;font-weight:900;letter-spacing:1px;padding:2px 9px;border-radius:7px;background:rgba(255,255,255,.25)}
+.bet .ev{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;opacity:.92;margin-left:auto;text-align:right;line-height:1.5}
+.bet.perfect{background:var(--fire-grad);color:#fff;box-shadow:0 0 22px var(--fire-glow);animation:flame 1.6s ease-in-out infinite}
+.bet.good{background:var(--fire-soft);color:#fff}
+.detailhint{text-align:center;font-size:11px;color:var(--acc-ink);margin-top:10px;padding:8px;border:1px dashed var(--acc-bord);border-radius:10px}
+
+.memo-tabs{display:flex;gap:6px;margin-bottom:4px}
+.memo-tabs button{flex:1;cursor:pointer;font-family:inherit;background:var(--surface2);border:1px solid var(--bord);border-radius:8px;padding:6px;font-size:11px;font-weight:700;color:var(--ink3)}
+.memo-tabs button.on{background:var(--acc-bg);border-color:var(--acc-bord);color:var(--acc-ink)}
+.memo-updated{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--ink4)}
+.memo-updated button{cursor:pointer;background:var(--surface2);border:1px solid var(--bord);border-radius:7px;color:var(--ink3);font-size:10.5px;padding:3px 9px;font-family:inherit;display:flex;align-items:center;gap:4px}
+.sumwrap{display:flex;flex-direction:column;gap:10px;height:100%}
+.racestrip{flex-shrink:0;display:flex;align-items:center;gap:36px;padding:18px 30px}
+.rs-big{font-family:'Noto Serif JP',serif;font-size:56px;font-weight:700;line-height:1.08;white-space:nowrap;letter-spacing:1px}
+.rs-sub{font-size:13px;color:var(--ink3);margin-top:7px;white-space:nowrap}
+.rs-kv{grid-template-columns:repeat(3,1fr);flex:1;margin-top:0;gap:7px 9px;max-width:600px;margin-left:auto}
+.rs-kv div{padding:8px 13px}
+.rs-kv .k{font-size:10px}
+.rs-kv .v{font-size:15px}
+.g2m{display:grid;grid-template-columns:1fr 43%;gap:10px;flex:1;min-height:0}
+.sb2col{display:grid;grid-template-columns:1fr 1fr;gap:9px 20px}
+.sumcard{display:flex;flex-direction:column}
+.sumhead{display:flex;align-items:baseline;gap:13px;margin-bottom:12px;flex-shrink:0}
+.sh-jp{font-family:'Noto Serif JP',serif;font-size:28px;font-weight:700;letter-spacing:4px;line-height:1}
+.sh-en{font-size:9.5px;letter-spacing:3px;color:var(--ink4);font-weight:600}
+.sh-legend{margin-left:auto;font-size:11px;color:var(--ink3);letter-spacing:.5px;display:flex;align-items:center;gap:7px}
+#sumtable{width:100%;border-collapse:collapse}
+#sumtable th{font-size:11px;letter-spacing:.8px;color:var(--ink3);font-weight:500;padding-bottom:11px}
+#sumtable td{padding:1.4vh 9px}
+#sumtable th:first-child,#sumtable td:first-child{text-align:left;padding-left:2px;padding-right:4px;width:42px}
+#sumtable th:nth-child(2),#sumtable td:nth-child(2){padding-left:4px}
+#sumtable tr.rw:last-child td{border-bottom:none}
+#sumtable .nm{font-size:19px;font-weight:700;line-height:1.2}
+#sumtable .mt{font-size:10.5px;color:var(--ink4);margin-top:2px}
+#sumtable .wk{width:35px;height:35px;font-size:18px;border-radius:9px}
+#sumtable .cls{font-size:9px}
+.stcell b{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700}
+.m2cell b{font-size:18px}.m2cell small{font-size:11.5px;color:var(--ink3);font-weight:400}
+.probcell{width:33%;padding-right:22px}
+.probwrap{display:flex;align-items:center;gap:13px}
+.probwrap .mini{flex:1;width:auto;height:14px;border-radius:5px}
+.probwrap .mini i{height:14px;border-radius:5px}
+.probnum{font-family:'JetBrains Mono',monospace;font-size:23px;font-weight:900;min-width:54px;text-align:right;line-height:1}
+.probnum small{font-size:12px;color:var(--ink3);font-weight:700}
+.probnum.hi{color:var(--acc-ink)}
+.sumnote{flex-shrink:0;margin-top:auto;padding-top:13px;border-top:1px solid var(--hair);font-size:11.5px;color:var(--ink3);line-height:1.75}
+.sumnote b{color:var(--ink2)}.sumnote .tag{color:var(--acc-ink);font-weight:700}
+.detailbtn{width:100%;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:14px;padding:14px;border:none;border-radius:13px;background:var(--star-grad);color:#fff;font-size:14.5px;font-weight:700;letter-spacing:.5px;position:relative;overflow:hidden;isolation:isolate;box-shadow:0 0 22px var(--glow);transition:transform .2s,box-shadow .2s}
+.detailbtn::before{content:'';position:absolute;inset:-2px;z-index:0;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.9) 1px,transparent 1.5px),radial-gradient(rgba(255,255,255,.5) 1px,transparent 1.7px);background-size:24px 24px,40px 40px;background-position:0 0,12px 9px;animation:sparkle 9s linear infinite}
+.detailbtn>*{position:relative;z-index:1}
+.detailbtn:hover{transform:translateY(-2px);box-shadow:0 0 34px var(--glow)}
+.detailbtn .db-ic{font-size:15px}
+.detailbtn .db-ar{font-size:16px;transition:transform .2s}
+.detailbtn:hover .db-ar{transform:translateX(5px)}
+
+.memofab2{position:fixed;left:20px;bottom:20px;z-index:30;width:64px;height:64px;border-radius:50%;border:none;cursor:grab;padding:0;background:transparent;transition:transform .2s;touch-action:none;user-select:none}
+.memofab2.dragging{cursor:grabbing;transition:none}
+.memofab2:hover{transform:translateY(-3px) scale(1.06)}
+.mf2-in{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 26px var(--glow)}
+.mf2-in svg{width:26px;height:26px;color:#fff}
+.mf2-badge{position:absolute;top:-4px;right:-4px;background:var(--fire-grad);color:#fff;font-weight:900;font-size:12px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px var(--fire-glow);z-index:2}
+.mf2-lbl{position:absolute;left:74px;top:50%;transform:translateY(-50%) translateX(-8px);white-space:nowrap;background:var(--solid);border:1px solid var(--bord2);border-radius:9px;padding:6px 13px;font-size:12px;font-weight:700;color:var(--ink2);opacity:0;transition:.2s;pointer-events:none}
+.memofab2:hover .mf2-lbl{opacity:1;transform:translateY(-50%)}
+
+.agentlist{display:flex;flex-direction:column;gap:7px}
+.al{background:var(--surface2);border:1px solid var(--hair);border-radius:11px;padding:9px 13px}
+.al.sig{border-left:3px solid var(--acc)}
+.alh{display:flex;justify-content:space-between;align-items:center}
+.aln{font-size:12.5px;font-weight:700}
+.als{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--ink3)}
+.als.hi{color:var(--acc-ink)}
+.alt{font-size:11px;color:var(--ink3);line-height:1.6;margin-top:3px}
+
+/* ===== 夜（ダーク）専用スキン：シンプル×高級×グラス×モノトーン =====
+   ライト（オレンジ）には一切適用しない。html:not([data-theme="light"]) で夜だけ上書き。
+   方針：広い面の紫を白/ガラスに落とし、紫は「リング・ブランド・CTA・選択マーク・水玉」だけの“たまに”アクセントに絞る。 */
+html:not([data-theme="light"]){
+  --acc-ink:#ECEAF6;               /* 強調テキスト/数字：紫 → ほぼ白（数字を一色化） */
+  --acc-bg:rgba(255,255,255,.06);  /* 選択・強調の背景：紫 → 透明ガラス白 */
+  --acc-bord:rgba(255,255,255,.2);
+  --glow:rgba(255,255,255,.14);    /* 発光：白寄りに */
+}
+/* パネルをより“ガラス×3D”に（奥行きの影＋上端ハイライト） */
+html:not([data-theme="light"]) .panel{
+  background:rgba(255,255,255,.042);
+  border-color:rgba(255,255,255,.1);
+  box-shadow:0 10px 34px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.06);
+}
+html:not([data-theme="light"]) .panel:hover{border-color:rgba(255,255,255,.17)}
+/* バー類：紫グラデ → 白ガラス（伸びるアニメは維持） */
+html:not([data-theme="light"]) .sb .sbf,
+html:not([data-theme="light"]) .dw-bar .bf,
+html:not([data-theme="light"]) .mini i.hot,
+html:not([data-theme="light"]) .expbar i{
+  background:linear-gradient(90deg,rgba(255,255,255,.32),rgba(255,255,255,.9));
+  box-shadow:none;
+}
+/* 予想マーク（◎◯▲△）を色→白のモノトーン階調に */
+html:not([data-theme="light"]) .mk-o{color:var(--ink)}
+html:not([data-theme="light"]) .mk-w{color:var(--ink2)}
+html:not([data-theme="light"]) .mk-s,
+html:not([data-theme="light"]) .mk-c{color:var(--ink3)}
+/* 推奨買い目：PERFECT行の“赤枠”を撤去してガラスに。色はPERFECTバッジだけ残して映えさせる */
+html:not([data-theme="light"]) .rec.top{background:var(--surface2);border-color:var(--bord)}
+/* GOODバッジはグレーガラスへ。色の主役をPERFECTだけに絞る */
+html:not([data-theme="light"]) .hlbl2.h2{background:rgba(255,255,255,.1);color:var(--ink2);box-shadow:none}
+/* 詳細モーダルの推奨買い目もガラス化（炎の演出は消し、PERFECTバッジだけ炎を残す） */
+html:not([data-theme="light"]) .bet.perfect,
+html:not([data-theme="light"]) .bet.good{
+  background:var(--surface2);color:var(--ink);border:1px solid var(--bord);
+  box-shadow:none;animation:none;
+}
+html:not([data-theme="light"]) .bet.fire::before,
+html:not([data-theme="light"]) .bet.fire::after{display:none}
+html:not([data-theme="light"]) .bet .hlbl{background:rgba(255,255,255,.12)}
+html:not([data-theme="light"]) .bet.perfect .hlbl{background:var(--fire-grad);box-shadow:0 0 10px var(--fire-glow)}
+/* 詳細ボタン：星屑グラデ → 黒ガラス＋細いグラデ縁の“静かな高級”。中身は暗く、縁だけ紫が走る */
+html:not([data-theme="light"]) .detailbtn{
+  background:linear-gradient(175deg,#1B1B26,#101016 62%) padding-box,
+             linear-gradient(120deg,#8B72FF,rgba(255,255,255,.16) 45%,#B79DFF) border-box;
+  border:1px solid transparent;color:var(--ink);letter-spacing:1.5px;
+  box-shadow:0 8px 28px rgba(0,0,0,.42),0 0 20px rgba(139,114,255,.13);
+}
+html:not([data-theme="light"]) .detailbtn::before{content:none}
+html:not([data-theme="light"]) .detailbtn:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(0,0,0,.5),0 0 30px rgba(139,114,255,.3)}
+html:not([data-theme="light"]) .detailbtn .db-ic{color:var(--acc-soft)}
+/* 枠番号バッジ：枠色そのまま・周りにその色の淡いグロー（光の輪） */
+html:not([data-theme="light"]) .wk{border-color:rgba(255,255,255,.1)}
+html:not([data-theme="light"]) .wk1{box-shadow:0 0 10px rgba(255,255,255,.3)}
+html:not([data-theme="light"]) .wk2{box-shadow:0 0 10px rgba(255,255,255,.12)}
+html:not([data-theme="light"]) .wk3{box-shadow:0 0 10px rgba(228,54,44,.55)}
+html:not([data-theme="light"]) .wk4{box-shadow:0 0 10px rgba(44,99,200,.6)}
+html:not([data-theme="light"]) .wk5{box-shadow:0 0 10px rgba(242,203,46,.45)}
+html:not([data-theme="light"]) .wk6{box-shadow:0 0 10px rgba(42,164,90,.55)}
+/* 買い目メモ：紫水玉ヘッダー → 黒ガラス＋左上にだけ紫の気配。合成オッズはグラデ縁の主役カードに */
+html:not([data-theme="light"]) .memo{background:rgba(15,15,21,.92);backdrop-filter:blur(26px)}
+html:not([data-theme="light"]) .memo-head{background:linear-gradient(120deg,rgba(109,79,224,.3),rgba(17,17,23,0) 62%),rgba(255,255,255,.03);border-bottom:1px solid var(--bord)}
+html:not([data-theme="light"]) .memo-head::before,
+html:not([data-theme="light"]) .memo-head::after{content:none}
+html:not([data-theme="light"]) .memo-synth{
+  background:linear-gradient(175deg,#1B1B26,#101016 62%) padding-box,
+             linear-gradient(120deg,rgba(139,114,255,.75),rgba(255,255,255,.12) 50%,rgba(183,157,255,.5)) border-box;
+  border:1px solid transparent;
+}
+html:not([data-theme="light"]) .memo-amt button.on{background:#fff;border-color:transparent;color:#101016}
+html:not([data-theme="light"]) .memo-foot{background:rgba(255,255,255,.03)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="orb starfield"></div>
+    <div><div class="nm viotext" style="font-size:24px;letter-spacing:2px">フナヨミAI</div><div class="tag">競艇予想AI研究所</div></div>
+  </div>
+  <div class="rhead">
+    <span class="rt">住之江 <span class="rn">12R</span></span>
+    <span class="rs mono">日刊ドリーム・全員A1｜締切 20:31</span>
+  </div>
+  <div class="topcmd mono"><span class="livedot"></span>フナヨミAI 分析完了 / 15.4s <span class="ok">✓</span></div>
+  <button class="theme" onclick="toggleTheme()" aria-label="テーマ切替">
+    <span class="knob starfield">
+      <svg id="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg id="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="4.4"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>
+    </span>
+  </button>
+</div>
+
+<div class="tabbar">
+  <button class="tab active" onclick="showTab(event,'p-sum')">サマリー</button>
+  <button class="tab" onclick="showTab(event,'p-card')">出走表</button>
+  <button class="tab" onclick="showTab(event,'p-dev')">展開・連対率</button>
+  <button class="tab" onclick="showTab(event,'p-motor')">モーター</button>
+  <button class="tab" onclick="showTab(event,'p-before')">直前情報</button>
+  <button class="tab" onclick="showTab(event,'p-odds')">オッズ期待値</button>
+</div>
+
+<div class="content">
+
+  <!-- ============ SUMMARY ============ -->
+  <div class="pane active" id="p-sum">
+    <div class="sumwrap">
+
+      <div class="panel racestrip">
+        <div class="rs-name">
+          <div class="label">RACE</div>
+          <div class="rs-big">住之江 <span class="viotext">12R</span></div>
+          <div class="rs-sub mono">しぶき杯・日刊ドリーム 1800m｜2026-07-03 締切 20:31</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:11px"><span class="badge acc">イン鉄板型</span><span class="badge">全員A1</span><span class="badge">ナイター</span></div>
+        </div>
+        <div class="kv2 rs-kv">
+          <div><span class="k">天候/風</span><span class="v">晴・1m</span></div><div><span class="k">波高</span><span class="v">1cm</span></div>
+          <div><span class="k">水面</span><span class="v">淡水・凪</span></div><div><span class="k">直前情報</span><span class="v ok">✓ 20:05</span></div>
+          <div><span class="k">オッズ</span><span class="v ok">✓ 20:28</span></div><div><span class="k">エンジン</span><span class="v mono">v1.0</span></div>
+        </div>
+      </div>
+
+      <div class="g2m">
+        <div class="panel sumcard" style="overflow-y:auto">
+          <div class="sumhead">
+            <span class="sh-jp">出走表</span>
+            <span class="sh-legend"><span class="livedot"></span>ST・M2率・1着確率</span>
+          </div>
+          <table class="dt" id="sumtable"></table>
+          <div class="sumnote"><b>淡水・凪／全員A1</b>のイン鉄板構成。<span class="tag">◎1号 森高</span>を軸に、2〜3着で期待値を取る堅めの一戦。行をタップで選手カルテが開く。</div>
+        </div>
+
+        <div class="panel aicard" style="overflow-y:auto;cursor:pointer" onclick="openAIDetail()">
+          <div class="sec-h"><span class="label">フナヨミAI — 総合評価</span><span class="livedot"></span><span class="cnt">タップで詳細分析 →</span></div>
+          <div class="hero" style="margin:14px 0 22px;gap:24px">
+            <div class="hs-ring" style="--target:82%;width:168px;height:168px"><div class="hs-in" style="width:132px;height:132px"><span class="n" id="heronum" style="font-size:56px">0</span><span class="c" style="font-size:12px">/ 100</span></div></div>
+            <div class="hero-side"><div class="w" style="font-size:46px">買い</div><div class="s" style="font-size:13px;margin-top:8px">イン鉄板場×全員A1×凪。<br>1号頭固定・人気筋を避けて<br>中穴3点で期待値を取る。</div></div>
+          </div>
+          <div class="scorebars sb2col">
+            <div class="sb"><span class="sbk">コース</span><div class="sbt"><div class="sbf" style="--sw:94%"></div></div><span class="sbv">94</span></div>
+            <div class="sb"><span class="sbk">選手</span><div class="sbt"><div class="sbf" style="--sw:88%"></div></div><span class="sbv">88</span></div>
+            <div class="sb"><span class="sbk">モーター</span><div class="sbt"><div class="sbf" style="--sw:76%"></div></div><span class="sbv">76</span></div>
+            <div class="sb"><span class="sbk">スジ</span><div class="sbt"><div class="sbf" style="--sw:80%"></div></div><span class="sbv">80</span></div>
+            <div class="sb"><span class="sbk">展示</span><div class="sbt"><div class="sbf" style="--sw:70%"></div></div><span class="sbv">70</span></div>
+            <div class="sb"><span class="sbk">荒れ度</span><div class="sbt"><div class="sbf" style="--sw:25%"></div></div><span class="sbv">25</span></div>
+          </div>
+          <div class="yomirow" style="margin-top:18px">
+            <span class="yomi"><b class="mk mk-o">◎</b><span class="wk wk1 sm">1</span>森高</span>
+            <span class="yomi"><b class="mk mk-w">◯</b><span class="wk wk6 sm">6</span>前田</span>
+            <span class="yomi"><b class="mk mk-s">▲</b><span class="wk wk5 sm">5</span>渡邉</span>
+            <span class="yomi"><b class="mk mk-c">△</b><span class="wk wk4 sm">4</span>杉山</span>
+            <span class="yomi mute"><b class="mk">消</b>2・3</span>
+          </div>
+          <div class="subh" style="margin-bottom:9px">推奨買い目 — 3連単 3点<span style="color:var(--ink4);font-weight:400;margin-left:6px">タップで買い目メモに追加/解除</span></div>
+          <div class="reclist">
+            <div class="rec top" data-combo="1-6-2" data-odds="54.1" onclick="event.stopPropagation();toggleBet(this)"><span class="rc">1-6-2</span><span class="hlbl2 h3">PERFECT</span><span class="rodds">54.1<small>倍</small></span><span class="rev"><small>期待値</small>1.41</span></div>
+            <div class="rec" data-combo="1-5-2" data-odds="21.4" onclick="event.stopPropagation();toggleBet(this)"><span class="rc">1-5-2</span><span class="hlbl2 h2">GOOD</span><span class="rodds">21.4<small>倍</small></span><span class="rev"><small>期待値</small>1.18</span></div>
+            <div class="rec" data-combo="1-4-2" data-odds="20.4" onclick="event.stopPropagation();toggleBet(this)"><span class="rc">1-4-2</span><span class="hlbl2 h2">GOOD</span><span class="rodds">20.4<small>倍</small></span><span class="rev"><small>期待値</small>1.18</span></div>
+          </div>
+          <button class="detailbtn" onclick="event.stopPropagation();openAIDetail()"><span class="db-ic">◎</span>フナヨミAIの分析結果 詳細を見る<span class="db-ar">→</span></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ 出走表 ============ -->
+  <div class="pane" id="p-card">
+    <div class="panel">
+      <div class="sec-h"><span class="label">出走表 — 全国 / 当地 成績フル</span><span class="cnt">クリックで選手カルテ</span></div>
+      <table class="dt" id="cardtable"></table>
+      <div style="margin-top:14px;border-top:1px solid var(--hair);padding-top:12px">
+        <div class="subh">ボートレース住之江の特徴</div>
+        <div class="simu"><p>淡水＝<b>モーター性能・体重差が出やすい</b>。センターポール振り6mと小さく<b>イン有利のレイアウト</b>（斜行せず回りシロ確保）。5m以上の強風は約5%・約4割が無風で<b>スリット揃いイン勝率上昇</b>。コンクリ護岸で返し波が残り<b>2マークで逆転が多い</b>。</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 展開・連対率 ============ -->
+  <div class="pane" id="p-dev">
+    <div class="g2">
+      <div class="panel">
+        <div class="sec-h"><span class="label">AI展開予想 — 決まり手確率</span></div>
+        <div class="expbar"><i style="width:77%">逃げ 77%</i><span class="avg" style="left:54%"></span><span class="lbl">場平均 54%</span></div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:16px">1号森高が「逃げ」＝場平均を大きく上回る。凪・全員A1・振り6mの住之江イン適性が乗る。</div>
+        <div class="subh">決まり手率（直近6ヶ月・各艇の枠成績）</div>
+        <table class="dt">
+          <tr><th class="l">枠</th><th>逃げ/逃し</th><th>差し</th><th>まくり</th><th>まくり差</th><th>出走</th></tr>
+          <tr class="rw"><td class="l"><span class="wk wk1 sm">1</span> 森高</td><td class="num"><b>50.0%</b></td><td class="num">4.5%<span class="sub">被差</span></td><td class="num">13.6%<span class="sub">被</span></td><td class="num">18.2%<span class="sub">被</span></td><td class="num">22</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk2 sm">2</span> 田村</td><td class="num">54.5%</td><td class="num hi">18.2%</td><td class="num">4.5%</td><td class="num">0%</td><td class="num">23</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk3 sm">3</span> 市川</td><td class="num">-</td><td class="num">4.2%</td><td class="num">4.2%</td><td class="num">8.3%</td><td class="num">25</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk4 sm">4</span> 杉山</td><td class="num">-</td><td class="num">5.0%</td><td class="num">5.0%</td><td class="num">0%</td><td class="num">20</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk5 sm">5</span> 渡邉</td><td class="num">-</td><td class="num">0%</td><td class="num">0%</td><td class="num">4.5%</td><td class="num">22</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk6 sm">6</span> 前田</td><td class="num">-</td><td class="num">0%</td><td class="num">0%</td><td class="num hi">4.8%</td><td class="num">21</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="sec-h"><span class="label">先頭艇別連対率 — スジ読み</span><span class="cnt">1号 森高 先頭時</span></div>
+        <table class="dt">
+          <tr><th class="l">枠</th><th class="l" style="padding-left:14px">2着率 →</th><th>着取率</th><th>3着率</th></tr>
+          <tr class="rw hot"><td class="l"><span class="wk wk2 sm">2</span> 田村</td><td class="l" style="padding-left:14px"><span class="wr-bar" style="max-width:150px"><i class="wr-1" style="width:80%">80%</i></span></td><td class="num hi">80.0%</td><td class="num">20.0%</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk4 sm">4</span> 杉山</td><td class="l" style="padding-left:14px"><span class="wr-bar" style="max-width:150px"><i class="wr-2" style="width:50%">50%</i></span></td><td class="num">50.0%</td><td class="num hi">40.0%</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk6 sm">6</span> 前田</td><td class="l" style="padding-left:14px"><span class="wr-bar" style="max-width:150px"><i class="wr-2" style="width:50%">50%</i></span></td><td class="num">50.0%</td><td class="num">30.0%</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk3 sm">3</span> 市川</td><td class="l" style="padding-left:14px"><span class="wr-bar" style="max-width:150px"><i class="wr-3" style="width:40%">40%</i></span></td><td class="num">40.0%</td><td class="num">10.0%</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk5 sm">5</span> 渡邉</td><td class="l" style="padding-left:14px"><span class="wr-bar" style="max-width:150px"><i class="wr-o" style="width:30%">30%</i></span></td><td class="num">30.0%</td><td class="num">10.0%</td></tr>
+        </table>
+        <div style="font-size:11px;color:var(--ink3);margin-top:11px;line-height:1.7">森高が逃げた時、<b style="color:var(--ink)">2着は田村が80%</b>と圧倒的（内を締める）。3着は杉山40%が最有力＝<span style="color:var(--acc-ink);font-weight:700">1-2-4のスジ</span>。ただし本番は田村がカベ役として薄く、実際は1-4-2で決着した。</div>
+        <div class="subh" style="margin-top:15px">枠別スタート順位（平均ST順位）</div>
+        <table class="dt">
+          <tr><th class="l">枠</th><th>平均ST</th><th>ST順位</th></tr>
+          <tr class="rw"><td class="l"><span class="wk wk3 sm">3</span> 市川</td><td class="num hi">.12</td><td class="num hi">2.6位</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk5 sm">5</span> 渡邉</td><td class="num">.15</td><td class="num">2.9位</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk6 sm">6</span> 前田</td><td class="num">.16</td><td class="num">3.1位</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk2 sm">2</span> 田村</td><td class="num">.14</td><td class="num">3.2位</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk1 sm">1</span> 森高</td><td class="num">.14</td><td class="num">3.7位</td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk4 sm">4</span> 杉山</td><td class="num">.17</td><td class="num">3.8位</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ モーター ============ -->
+  <div class="pane" id="p-motor">
+    <div class="panel">
+      <div class="sec-h"><span class="label">モーター情報 — 2連率の全国順位</span><span class="cnt">フナヨミAI・モーター分析</span></div>
+      <table class="dt" id="motortable"></table>
+      <div style="font-size:11px;color:var(--ink3);margin-top:12px;line-height:1.7"><b style="color:var(--acc-ink)">6号 No.29 が全国5位（45.6%）で上端シグナル発火</b>。2号 No.28 は全国40位（23.2%）で下端＝カベ役として機力が乏しい。フナヨミAIは「両端シグナルのみ採用」＝この2機だけを補正に使う。</div>
+    </div>
+  </div>
+
+  <!-- ============ 直前情報 ============ -->
+  <div class="pane" id="p-before">
+    <div class="g2">
+      <div class="panel">
+        <div class="sec-h"><span class="label">直前情報 — 展示・進入・展示ST</span></div>
+        <table class="dt" id="beforetable"></table>
+        <div style="font-size:11px;color:var(--ink3);margin-top:11px;line-height:1.7">⚠️ <b style="color:var(--ink)">スタート展示で進入が乱れた</b>：1号森高が5コース、5号渡邉と4号杉山が2コースへ。展示STは<b style="color:var(--acc-ink)">5号渡邉が.00</b>と抜群。本番は枠なりに戻り1号逃げで決着。</div>
+      </div>
+      <div class="panel">
+        <div class="sec-h"><span class="label">気象・水面コンディション</span></div>
+        <div class="kv2" style="grid-template-columns:1fr 1fr 1fr">
+          <div><span class="k">天候</span><span class="v">晴</span></div>
+          <div><span class="k">気温</span><span class="v">27.0℃</span></div>
+          <div><span class="k">水温</span><span class="v">27.0℃</span></div>
+          <div><span class="k">風速</span><span class="v">1m</span></div>
+          <div><span class="k">波高</span><span class="v">1cm</span></div>
+          <div><span class="k">水質</span><span class="v">淡水</span></div>
+        </div>
+        <div class="subh" style="margin-top:16px">荒れ度スコア分解</div>
+        <div class="dw-bar"><span class="bk">風（1m）</span><div class="bt"><div class="bf" style="width:8%"></div></div><span class="bv">+0.1</span></div>
+        <div class="dw-bar"><span class="bk">波（1cm）</span><div class="bt"><div class="bf" style="width:5%"></div></div><span class="bv">+0.0</span></div>
+        <div class="dw-bar"><span class="bk">攻撃筋</span><div class="bt"><div class="bf" style="width:40%"></div></div><span class="bv">+1.2</span></div>
+        <div class="dw-bar"><span class="bk">前づけ</span><div class="bt"><div class="bf" style="width:0%"></div></div><span class="bv">0.0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;border-top:1px solid var(--hair);padding-top:10px">
+          <span style="font-size:12px;color:var(--ink3)">荒れ度 合計</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700">★1 <span style="font-size:13px;color:var(--ink3)">/ 2.3</span></span>
+        </div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:8px;line-height:1.7">凪・波なしで荒れ要素は薄い。唯一6号の攻撃筋が加点だが6コースからは決まりにくく<b style="color:var(--ink)">堅い決着を予想</b>。AI万舟率10%。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ オッズ期待値 ============ -->
+  <div class="pane" id="p-odds">
+    <div class="g2">
+      <div class="panel">
+        <div class="sec-h"><span class="label">AIオッズ評価 — 期待値</span><span class="cnt">フナヨミAI・オッズ分析</span></div>
+        <table class="dt">
+          <tr><th class="l">枠</th><th>1着投票率</th><th>AI予測</th><th>期待値</th></tr>
+          <tr class="rw hot"><td class="l"><span class="wk wk1 sm">1</span> 森高</td><td class="num">64.3%</td><td class="num hi">79.5%</td><td><span class="tag2 tag-under">やや過小</span></td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk3 sm">3</span> 市川</td><td class="num">8.7%</td><td class="num">4.1%</td><td><span class="tag2 tag-over">過大</span></td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk2 sm">2</span> 田村</td><td class="num">8.6%</td><td class="num">6.6%</td><td><span class="tag2 tag-over">過大</span></td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk4 sm">4</span> 杉山</td><td class="num">7.6%</td><td class="num">3.4%</td><td><span class="tag2 tag-over">過大</span></td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk5 sm">5</span> 渡邉</td><td class="num">7.0%</td><td class="num">4.6%</td><td><span class="tag2 tag-over">過大</span></td></tr>
+          <tr class="rw"><td class="l"><span class="wk wk6 sm">6</span> 前田</td><td class="num">3.8%</td><td class="num">1.8%</td><td><span class="tag2 tag-over">過大</span></td></tr>
+        </table>
+        <div style="font-size:11px;color:var(--ink3);margin-top:11px;line-height:1.7"><b style="color:var(--pos)">1号森高だけが「過小」</b>＝市場（投票64%）よりAI予測（79%）が高い＝頭固定が正解。他は全部「過大」＝人気ほど来ない。人気の1-2-3（13.2倍）を避け、2〜3着で期待値を取るのがこのレースの組み立て。</div>
+      </div>
+      <div class="panel">
+        <div class="sec-h"><span class="label">3連単オッズ — 人気順</span></div>
+        <table class="dt">
+          <tr><th class="l">順位</th><th class="l">組番</th><th>オッズ</th><th>期待値</th></tr>
+          <tr class="rw" data-combo="1-2-3" data-odds="13.2" onclick="toggleBet(this)"><td class="l num">1</td><td class="l num" style="font-weight:700">1-2-3</td><td class="num">13.2</td><td class="num" style="color:var(--ink4)">0.79</td></tr>
+          <tr class="rw" data-combo="1-3-2" data-odds="21.1" onclick="toggleBet(this)"><td class="l num">2</td><td class="l num" style="font-weight:700">1-3-2</td><td class="num">21.1</td><td class="num">0.95</td></tr>
+          <tr class="rw" data-combo="1-4-2" data-odds="20.4" onclick="toggleBet(this)"><td class="l num">3</td><td class="l num" style="font-weight:700">1-4-2</td><td class="num">20.4</td><td class="num hi">1.18</td></tr>
+          <tr class="rw" data-combo="1-5-2" data-odds="21.4" onclick="toggleBet(this)"><td class="l num">4</td><td class="l num" style="font-weight:700">1-5-2</td><td class="num">21.4</td><td class="num hi">1.18</td></tr>
+          <tr class="rw hot" data-combo="1-6-2" data-odds="54.1" onclick="toggleBet(this)"><td class="l num">5</td><td class="l num" style="font-weight:700">1-6-2</td><td class="num">54.1</td><td class="num hi">1.41</td></tr>
+          <tr class="rw" data-combo="2-3-1" data-odds="65.6" onclick="toggleBet(this)"><td class="l num">6</td><td class="l num" style="font-weight:700">2-3-1</td><td class="num">65.6</td><td class="num">0.61</td></tr>
+        </table>
+        <div style="font-size:11px;color:var(--ink3);margin-top:11px;line-height:1.7"><b style="color:var(--ink3)">行をタップで買い目メモに追加/解除。</b>人気1位の1-2-3は期待値0.79で<b style="color:var(--ink)">買えば負ける</b>。期待値1超は1-4-2 / 1-5-2 / 1-6-2 の3点。特に<b style="color:var(--acc-ink)">1-6-2は54.1倍で期待値1.41</b>＝AIが最も推す期待値トップの一点。</div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="footer">
+  <span>KYOTEI AI LAB engine v1.0｜検証 8/100 レース｜データ: boatrace.jp 2026-07-03 実測</span>
+  <span>本レポートは予想であり的中を保証するものではありません。舟券の購入は自己責任で。</span>
+</div>
+
+<button class="memofab2" id="memofab" aria-label="買い目メモ（ドラッグで移動）">
+  <span class="mf2-in starfield"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 8h6M8 12h8M8 16h5"/></svg></span>
+  <span class="mf2-badge" id="fabbadge">3</span>
+  <span class="mf2-lbl" id="fablbl">買い目メモ｜合成 8.7倍・3点</span>
+</button>
+
+<div class="overlay" id="ov" onclick="closeAll()"></div>
+<div class="drawer" id="dw"></div>
+<div class="aimodal" id="aidw">
+  <div class="term-head">
+    <span class="term-dots"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i></span>
+    <div class="orb starfield" style="width:20px;height:20px;border-radius:6px;flex-shrink:0"></div>
+    <span class="term-title mono">funayomi@lab — 詳細分析ターミナル / 住之江 12R</span>
+    <span class="term-live mono"><span class="livedot"></span>engine v1.0</span>
+    <button class="dw-close" style="position:static" onclick="closeAll()">✕ 閉じる</button>
+  </div>
+  <div class="aim-body">
+    <div class="aim-log" id="ailog"></div>
+    <div class="aim-res" id="aires">
+
+      <div class="aim-skel" id="ab-skel">■ フナヨミAI 解析中 …</div>
+      <div class="aim-block aim-verdict" id="ab-verdict">
+        <div class="hs-ring" style="width:150px;height:150px;animation:none;background:conic-gradient(var(--acc) 82%,var(--track) 0);flex-shrink:0"><div class="hs-in" style="width:118px;height:118px"><span class="n" id="aiscore" style="font-size:48px">0</span><span class="c" style="font-size:11px">/ 100</span></div></div>
+        <div>
+          <div style="font-family:'Noto Serif JP',serif;font-size:58px;font-weight:700;color:var(--acc-ink);line-height:1.05">買い</div>
+          <div style="font-size:13px;color:var(--ink2);margin-top:9px;line-height:1.8">イン鉄板場×全員A1×凪。1号頭固定・人気筋を避けて中穴3点で期待値を取る。</div>
+        </div>
+      </div>
+
+      <div class="aim-block" id="ab-agents">
+        <div class="dw-sec" style="margin-top:0">分析機能の内訳 — フナヨミAIが見た6つの視点</div>
+        <div class="agentgrid">
+          <div class="al" id="ag0"><div class="alh"><span class="aln">コース分析</span><span class="als hi">94</span></div><div class="alt">住之江1C 61.8%・振り6mのイン有利。凪でスリット揃い勝率上昇。頭は堅い。</div></div>
+          <div class="al" id="ag1"><div class="alh"><span class="aln">選手力分析</span><span class="als hi">88</span></div><div class="alt">全員A1だが当地勝率に差。森高7.61＝イン最適。5号渡邉 当地2連率92.9%は2着筆頭。</div></div>
+          <div class="al sig" id="ag2"><div class="alh"><span class="aln">モーター分析 ▲</span><span class="als hi">76</span></div><div class="alt">6号No.29が全国5位45.6%で上端発火。2号No.28が40位23.6%で下端。両端のみ補正採用。</div></div>
+          <div class="al" id="ag3"><div class="alh"><span class="aln">スジ分析</span><span class="als hi">80</span></div><div class="alt">1号先頭時、2着は田村80%・3着は杉山40%。ただし田村カベ薄で実際は1-4-2へ。</div></div>
+          <div class="al" id="ag4"><div class="alh"><span class="aln">直前観察</span><span class="als">70</span></div><div class="alt">展示ST渡邉.00は鋭い。進入は展示で乱れたが本番は枠なり想定。ターン気配に大崩れなし。</div></div>
+          <div class="al" id="ag5"><div class="alh"><span class="aln">荒れ分析</span><span class="als" style="color:var(--ink3)">25</span></div><div class="alt">風1m・波1cmで荒れ要素薄い。攻撃筋6号のみ加点だが6コースで減衰。AI万舟率10%＝堅い。</div></div>
+        </div>
+      </div>
+
+      <div class="aim-block" id="ab-simu">
+        <div class="dw-sec" style="margin-top:0">展開シミュレーション — 1マーク</div>
+        <div class="simu" style="background:var(--surface2);border:1px solid var(--hair);border-radius:11px;padding:12px 15px"><p style="font-size:12.5px">スリット想定：全員A1で隊形は揃いやすい。1号森高が先マイ、<b>カベ（2号）は機力下端で薄い</b>が枠なりなら内は締まる。脅威は<b>6号前田</b>（M全国5位・展示T最速6.84）のまくり差し<span class="sq">（スジ 6-5）</span>だが、6コースからの一撃は決まりにくく確率3%。<b>1号先マイ本線・2着はスジで2/4/5、3着流し</b>。</p></div>
+      </div>
+
+      <div class="aim-block" id="ab-odds">
+        <div class="dw-sec" style="margin-top:0">オッズ分析 — 期待値ゲート判定</div>
+        <div style="font-size:12px;color:var(--ink2);line-height:1.8;background:var(--surface2);border:1px solid var(--hair);border-radius:11px;padding:12px 15px">
+          森高は投票率64.3%に対しAI予測79.5%＝<b style="color:var(--pos)">過小評価（買い）</b>。人気1-2-3（13.2倍）は期待値0.79で棄却。期待値1超の <b class="mono" style="color:var(--acc-ink)">1-6-2・1-5-2・1-4-2</b> の3点のみ通過。<br><span style="font-size:10.5px;color:var(--ink4)">※締切3分前20:28取得。オッズは締切まで変動（パリミュチュエル方式）。</span>
+        </div>
+      </div>
+
+      <div class="aim-block" id="ab-bets">
+        <div class="dw-sec" style="margin-top:0">推奨買い目 — 3連単 3点</div>
+        <div class="betstack">
+          <div class="bet perfect fire" style="padding:14px 20px"><span class="combo" style="font-size:27px">1-6-2</span><span class="hlbl">PERFECT</span><span class="ev" style="font-size:12px">期待値1.41｜54.1倍</span></div>
+          <div class="bet good" style="padding:13px 20px"><span class="combo" style="font-size:24px">1-5-2</span><span class="hlbl">GOOD</span><span class="ev" style="font-size:12px">期待値1.18｜21.4倍</span></div>
+          <div class="bet good" style="padding:13px 20px"><span class="combo" style="font-size:24px">1-4-2</span><span class="hlbl">GOOD</span><span class="ev" style="font-size:12px">期待値1.18｜20.4倍</span></div>
+        </div>
+      </div>
+
+      <div class="aim-block" id="ab-judge">
+        <div class="dw-sec" style="margin-top:0">統合判断</div>
+        <div class="dw-ai" style="margin:0"><b>統合判断：</b>イン鉄板場（住之江1C 61.8%・振り6m）×全員A1×凪。1号森高の当地7.61でAI逃げ確率77%。攻撃筋の6号は機力最強だが6コースからは届かず、素直に<b>1号頭固定</b>。人気の1-2-3は期待値0.79で見送り、2〜3着で期待値を取る<b>中穴3点</b>が最適設計。</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="memo" id="memo">
+  <div class="memo-head starfield">
+    <button class="memo-close" onclick="closeAll()">✕</button>
+    <div class="mt">買い目メモ</div><div class="ms" id="msub">住之江 12R｜3連単 3点</div>
+  </div>
+  <div class="memo-body">
+    <div class="memo-synth"><span class="sk">合成オッズ</span><span class="sv" id="msynth">8.7倍</span></div>
+    <div><div class="label" style="margin-bottom:6px">金額設定 — 押した瞬間だけ一括計算（あとは各行で自由に編集）</div>
+      <div class="memo-tabs" id="mmode">
+        <button class="on" onclick="setMode('even',this)">均等配分</button>
+        <button onclick="setMode('pay',this)">想定払戻</button>
+        <button onclick="setMode('flat',this)">一括指定</button>
+      </div>
+    </div>
+    <div><div class="label" style="margin:9px 0 6px" id="mamtlbl">合計金額</div>
+      <div class="memo-amt" id="mamt">
+        <button onclick="setMemo(1000,this)">1,000</button><button class="on" onclick="setMemo(3000,this)">3,000</button>
+        <button onclick="setMemo(5000,this)">5,000</button><button onclick="setMemo(10000,this)">10,000</button>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="label">買い目（<span id="mcount">0</span>点）</div>
+      <div class="memo-tabs" style="width:auto;flex:none">
+        <button class="on" onclick="setSort('waku',this)" style="padding:4px 11px">枠番順</button>
+        <button onclick="setSort('odds',this)" style="padding:4px 11px">オッズ順</button>
+      </div>
+    </div>
+    <div class="memo-rows" id="mrows"></div>
+    <button class="memo-clear" onclick="clearBets()">すべての買い目を削除</button>
+    <div class="memo-note" id="mnote">均等配分＝どの買い目が的中しても払戻がほぼ同額になるよう、オッズの逆数比で振り分け（100円単位）</div>
+    <div class="memo-help" id="mhelp">
+      <button onclick="document.getElementById('mhelp').classList.toggle('open')">買い目メモについて<span class="ar">▾</span></button>
+      <div class="mh-body">
+        <div><b>買い目の追加：</b>サマリーの「推奨買い目」やオッズ期待値タブの行をタップすると追加、もう一度タップで解除。選択中の行は色が付く。</div>
+        <div><b>合成オッズ：</b>1 ÷ Σ(1/各オッズ)。選んだ組み合わせ全体を1つの券と見た実質倍率。購入金額を変えても変わらない。</div>
+        <div><b>金額設定：</b>均等配分＝どれが当たっても払戻がほぼ同額になるよう按分／想定払戻＝目標払戻額÷オッズで各行を逆算／一括指定＝全行に同額。いずれも押した瞬間だけの一括計算で、その後は各行の金額を自由に書き換えられる。</div>
+        <div><b>買い目の削除：</b>行の「削」で1点だけ削除、「すべての買い目を削除」で全消去。一覧の行をもう一度タップしても解除できる。</div>
+        <div><b>合計金額：</b>全買い目の購入金額の合計（◯通り＝選択中の点数）。</div>
+        <div><b>収支：</b>その買い目が的中した時の払戻から合計金額を引いた損益。プラスは緑で表示。</div>
+      </div>
+    </div>
+  </div>
+  <div class="memo-foot">
+    <div class="fr"><span class="fk">合計金額（<span id="mways">0</span>通り）</span><span class="fv" id="mtotal">0円</span></div>
+    <div class="fr"><span class="fk">的中時払戻（最低）</span><span class="fv big" id="mpay">0円</span></div>
+  </div>
+</div>
+
+<script>
+const P=[
+ {w:1,name:'森高 一真',cls:'A1',shibu:'香川',age:48,wt:'50.0',fl:'F0 L0',st:'.14',pst:'.15',zk:'6.88',z2:'36.0',z3:'58.0',tk:'7.61',t2:'53.7',t3:'73.2',mn:39,m2:'31.7',m3:'43.3',mrank:'26位',bn:50,b2:'30.0',b3:'55.0',ex:'6.89',tilt:'-0.5',entry:5,est:'.24',prob:52,main:false,hi:['tk','t2'],
+  ai:'当地勝率<b>7.61</b>はメンバー最上位のイン適性。住之江イン有利×凪でAI逃げ確率<b>77%</b>。展示Tは平凡だが頭固定の軸。展示STが.24と本番の進入乱れだけ注意。'},
+ {w:2,name:'田村 隆信',cls:'A1',shibu:'徳島',age:48,wt:'58.3',fl:'F0 L0',st:'.15',pst:'.16',zk:'6.29',z2:'44.4',z3:'56.6',tk:'5.87',t2:'34.8',t3:'47.8',mn:28,m2:'23.6',m3:'52.7',mrank:'40位',bn:16,b2:'27.4',b3:'51.0',ex:'6.87',tilt:'-0.5',entry:4,est:'.12',prob:7,main:false,hi:[],
+  ai:'モーター2連率<b>23.6%は全国40位・下端シグナル発火</b>。カベ役として薄く頭は消し。ただし1号先頭時の2着率80%＝差し残りで2〜3着候補。'},
+ {w:3,name:'市川 哲也',cls:'A1',shibu:'広島',age:57,wt:'51.0',fl:'F0 L0',st:'.15',pst:'.12',zk:'5.82',z2:'37.6',z3:'55.9',tk:'3.14',t2:'14.3',t3:'14.3',mn:84,m2:'32.8',m3:'53.1',mrank:'25位',bn:21,b2:'36.4',b3:'49.1',ex:'6.97',tilt:'0.0',entry:6,est:'.09',prob:5,main:false,hi:['pst'],
+  ai:'当地勝率3.14はメンバー最下位・展示T最遅6.97。ただし<b>予測ST.12・展示ST.09と鋭い</b>。頭材料はないが展開待ちの3着候補として拾える。'},
+ {w:4,name:'杉山 正樹',cls:'A1',shibu:'愛知',age:46,wt:'52.7',fl:'F0 L0',st:'.16',pst:'.15',zk:'6.43',z2:'41.0',z3:'60.7',tk:'6.68',t2:'45.2',t3:'71.0',mn:69,m2:'35.1',m3:'50.9',mrank:'22位',bn:13,b2:'35.3',b3:'52.9',ex:'6.91',tilt:'-0.5',entry:2,est:'.17',prob:9,main:false,hi:[],
+  ai:'当地6.68・当地3連率71%と水面相性良好。展示で2コースを試す動き＝差し構え。1号逃げ時のセット2着候補。<b>実際に2着</b>＝スジ通り。'},
+ {w:5,name:'渡邉 優美',cls:'A1',shibu:'福岡',age:33,wt:'47.5',fl:'F0 L0',st:'.14',pst:'.15',zk:'6.55',z2:'41.0',z3:'59.0',tk:'8.71',t2:'92.9',t3:'92.9',mn:19,m2:'39.3',m3:'66.1',mrank:'14位',bn:18,b2:'30.4',b3:'50.0',ex:'6.85',tilt:'0.0',entry:2,est:'.00',prob:11,main:false,hi:['t2','est'],
+  ai:'<b>当地2連率92.9%の異常値</b>＋平均ST.14同率トップ＋<b>展示ST.00</b>。5コースから全部絡む怖さ。2着候補の筆頭格だが本番は4着。'},
+ {w:6,name:'前田 篤哉',cls:'A1',shibu:'愛知',age:29,wt:'52.0',fl:'F0 L0',st:'.15',pst:'.16',zk:'7.03',z2:'55.6',z3:'73.2',tk:'7.83',t2:'58.3',t3:'83.3',mn:29,m2:'45.6',m3:'56.1',mrank:'5位',bn:51,b2:'28.1',b3:'46.9',ex:'6.84',tilt:'-0.5',entry:3,est:'.17',prob:16,main:true,hi:['zk','m2','ex'],
+  ai:'全国勝率<b>7.03</b>メンバー最強＋<b>モーター全国5位45.6%（上端発火）</b>＋展示T最速<b>6.84</b>。唯一の弱点が6コース。まくり差しなら<b>スジ6-5</b>だが届かず6着。'}
+];
+function bar(p){return `<span class="mini"><i class="${p.main?'hot':''}" style="width:${Math.min(100,p.prob*1.8)}%"></i></span>`}
+const MARKS={1:['◎','mk-o'],6:['◯','mk-w'],5:['▲','mk-s'],4:['△','mk-c']};
+function renderSum(){
+  let h=`<tr><th></th><th class="l">選手</th><th>ST</th><th>M2率</th><th style="padding-right:22px">1着確率</th></tr>`;
+  P.forEach((p,i)=>{
+    const mk=MARKS[p.w]?`<span class="mk ${MARKS[p.w][1]}" style="margin-left:8px;font-size:18px">${MARKS[p.w][0]}</span>`:'';
+    h+=`<tr class="rw${p.main?' hot':''}" onclick="openDrawer(${i})"><td><span class="wk wk${p.w}">${p.w}</span></td><td class="l"><div class="nm">${p.name}<span class="cls a1">${p.cls}</span>${mk}</div><div class="mt">${p.shibu}・${p.age}歳・${p.wt}kg</div></td><td class="num stcell"><b>${p.st}</b></td><td class="num m2cell${p.hi.includes('m2')?' hi':''}"><b>${p.m2}<small>%</small></b></td><td class="l probcell"><div class="probwrap">${bar(p)}<span class="probnum${p.main?' hi':''}">${p.prob}<small>%</small></span></div></td></tr>`});
+  document.getElementById('sumtable').innerHTML=h;
+}
+function renderCard(){
+  let h=`<tr><th></th><th class="l">選手</th><th>年齢/体重</th><th>ST/予測</th><th class="l">全国 勝率/2率/3率</th><th class="l">当地 勝率/2率/3率</th><th class="l">モーター</th><th class="l">ボート</th></tr>`;
+  P.forEach((p,i)=>{h+=`<tr class="rw${p.main?' hot':''}" onclick="openDrawer(${i})">
+    <td><span class="wk wk${p.w}">${p.w}</span></td>
+    <td class="l"><div class="nm">${p.name}<span class="cls a1">${p.cls}</span></div><div class="mt">${p.shibu}・${p.fl}</div></td>
+    <td class="num">${p.age}歳<br><span class="sub">${p.wt}kg</span></td>
+    <td class="num"><b>${p.st}</b><br><span class="sub">予${p.pst}</span></td>
+    <td class="l num${p.hi.includes('zk')?' hi':''}"><b>${p.zk}</b> <span class="sub">${p.z2}/${p.z3}%</span></td>
+    <td class="l num${p.hi.includes('tk')||p.hi.includes('t2')?' hi':''}"><b>${p.tk}</b> <span class="sub">${p.t2}/${p.t3}%</span></td>
+    <td class="l num${p.hi.includes('m2')?' hi':''}"><span class="sub">No.${p.mn}</span> <b>${p.m2}%</b> <span class="sub">/${p.m3}%</span></td>
+    <td class="l num"><span class="sub">No.${p.bn}</span> <b>${p.b2}%</b> <span class="sub">/${p.b3}%</span></td></tr>`});
+  document.getElementById('cardtable').innerHTML=h;
+}
+function renderMotor(){
+  const order=[...P].sort((a,b)=>parseInt(a.mrank)-parseInt(b.mrank));
+  let h=`<tr><th class="l">枠</th><th>M No.</th><th>全国順位</th><th>2連率</th><th>3連率</th><th>1着率</th><th>展示T</th></tr>`;
+  order.forEach(p=>{const top=parseInt(p.mrank)<=8,bot=parseInt(p.mrank)>=35;h+=`<tr class="rw${top?' hot':''}"><td class="l"><span class="wk wk${p.w} sm">${p.w}</span> ${p.name.split(' ')[0]}</td><td class="num">No.${p.mn}</td><td class="num ${top?'hi':''}" style="${bot?'color:var(--ink4)':''}"><b>${p.mrank}</b></td><td class="num ${top?'hi':''}"><b>${p.m2}%</b></td><td class="num">${p.m3}%</td><td class="num">${p.w==6?'24.6':p.w==1?'16.7':p.w==4?'26.3':'—'}%</td><td class="num">${p.ex}</td></tr>`});
+  document.getElementById('motortable').innerHTML=h;
+}
+function renderBefore(){
+  let h=`<tr><th class="l">枠</th><th>展示T</th><th>チルト</th><th>進入</th><th>展示ST</th><th>部品</th></tr>`;
+  P.forEach(p=>{h+=`<tr class="rw"><td class="l"><span class="wk wk${p.w} sm">${p.w}</span> ${p.name.split(' ')[0]}</td><td class="num${p.hi.includes('ex')?' hi':''}"><b>${p.ex}</b></td><td class="num">${p.tilt}</td><td class="num" style="${p.entry!=p.w?'color:var(--acc-ink);font-weight:700':''}">${p.entry}</td><td class="num${p.hi.includes('est')?' hi':''}"><b>${p.est}</b></td><td class="num sub">R</td></tr>`});
+  document.getElementById('beforetable').innerHTML=h;
+}
+renderSum();renderCard();renderMotor();renderBefore();
+
+function openDrawer(i){
+  const p=P[i];
+  document.getElementById('dw').innerHTML=`
+  <button class="dw-close" onclick="closeAll()">✕ 閉じる</button>
+  <div class="dw-head"><span class="wk wk${p.w} lg">${p.w}</span><div><div class="dw-name">${p.name}</div><div class="dw-meta">${p.cls}級・${p.shibu}支部・${p.age}歳・${p.wt}kg・${p.fl}</div></div></div>
+  <div class="dw-ai"><b>AI所見：</b>${p.ai}</div>
+  <div class="dw-grid">
+    <div class="dw-cell"><span class="k">全国勝率</span><span class="v${p.hi.includes('zk')?' hot':''}">${p.zk}</span></div>
+    <div class="dw-cell"><span class="k">当地勝率</span><span class="v${p.hi.includes('tk')?' hot':''}">${p.tk}</span></div>
+    <div class="dw-cell"><span class="k">平均ST</span><span class="v">${p.st}</span></div>
+    <div class="dw-cell"><span class="k">全国2連率</span><span class="v">${p.z2}<small>%</small></span></div>
+    <div class="dw-cell"><span class="k">当地2連率</span><span class="v${p.hi.includes('t2')?' hot':''}">${p.t2}<small>%</small></span></div>
+    <div class="dw-cell"><span class="k">予測ST</span><span class="v${p.hi.includes('pst')?' hot':''}">${p.pst}</span></div>
+    <div class="dw-cell"><span class="k">モーター${p.mn}</span><span class="v${p.hi.includes('m2')?' hot':''}">${p.m2}<small>%</small></span></div>
+    <div class="dw-cell"><span class="k">M全国順位</span><span class="v${parseInt(p.mrank)<=8?' hot':''}">${p.mrank}</span></div>
+    <div class="dw-cell"><span class="k">展示タイム</span><span class="v${p.hi.includes('ex')?' hot':''}">${p.ex}</span></div>
+  </div>
+  <div class="dw-sec">AI評価バー</div>
+  <div class="dw-bar"><span class="bk">総合力</span><div class="bt"><div class="bf" style="width:${Math.min(96,p.prob*1.6+28)}%"></div></div><span class="bv">${Math.min(96,Math.round(p.prob*1.6+28))}</span></div>
+  <div class="dw-bar"><span class="bk">機力</span><div class="bt"><div class="bf" style="width:${Math.round(parseFloat(p.m2)*1.9)}%"></div></div><span class="bv">${Math.round(parseFloat(p.m2)*1.9)}</span></div>
+  <div class="dw-bar"><span class="bk">水面相性</span><div class="bt"><div class="bf" style="width:${Math.round(parseFloat(p.tk)*11)}%"></div></div><span class="bv">${Math.round(parseFloat(p.tk)*11)}</span></div>
+  <div class="dw-bar"><span class="bk">1着確率</span><div class="bt"><div class="bf" style="width:${Math.min(100,p.prob*1.8)}%"></div></div><span class="bv">${p.prob}%</span></div>`;
+  document.getElementById('ov').classList.add('on');document.getElementById('dw').classList.add('on');
+}
+function closeAll(){['ov','dw','memo','aidw'].forEach(id=>document.getElementById(id).classList.remove('on'));aiTimers.forEach(clearTimeout);aiTimers=[];}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
+
+/* ===== AI詳細分析 — ターミナル演出 ===== */
+let aiTimers=[];
+const AILOG=[
+ {h:'<span class="tl-p">$</span> funayomi analyze --race <b>住之江12R</b> --engine v1.0 --mode 本気予想',cls:'cmd',d:150},
+ {h:'▸ boatrace.jp 実測データ取得 .............. <span class="tl-ok">OK</span> <span class="tl-dim">0.4s</span>',d:550},
+ {h:'  ├ 出走表6艇・級別/勝率/フライング歴 ....... <span class="tl-ok">6/6</span>',cls:'sub',d:120},
+ {h:'  ├ モーター2連率・ボート2連率 60日分 ....... <span class="tl-ok">OK</span>',cls:'sub',d:110},
+ {h:'  ├ 直前情報 <b>20:05</b>取得（展示T・展示ST・チルト・進入）',cls:'sub',d:110},
+ {h:'  └ 直前オッズ <b>20:28</b>取得（締切3分前）／気象: 晴・風1m・波1cm・淡水',cls:'sub',d:130},
+ {h:'<span class="tl-dim">────────────────────────────</span>',d:280},
+ {h:'▸ コース分析 ................ <b class="tl-p">94</b> <span class="tl-ok">✓</span>',rev:'ag0',d:400},
+ {h:'  ├ 住之江1コース1着率 <b>61.8%</b>（全国平均55%超）・振り6m＝イン有利',cls:'sub',d:120},
+ {h:'  ├ 風1m・波1cm・凪 → スリット揃い補正 <span class="tl-ok">+3.2pt</span>',cls:'sub',d:110},
+ {h:'  └ ①森高 逃げ確率 <b>77%</b>（枠別平均 50.0%を大幅超過）',cls:'sub',d:130},
+ {h:'▸ 選手力分析 ............... <b class="tl-p">88</b> <span class="tl-ok">✓</span>',rev:'ag1',d:400},
+ {h:'  ├ ①森高 当地<b>7.61</b>・当地3連率<b>73.2%</b>・ST.14 ★軸候補',cls:'sub',d:120},
+ {h:'  ├ ⑤渡邉 当地2連率<b>92.9%</b> <span class="tl-warn">異常値検知</span>・ST.14同率トップ',cls:'sub',d:120},
+ {h:'  ├ ⑥前田 全国<b>7.03</b>＝メンバー最強・当地3連率83.3%',cls:'sub',d:110},
+ {h:'  └ ②田村 当地<b>5.87</b>▼メンバー内で見劣り＝カベ薄リスク',cls:'sub',d:130},
+ {h:'▸ モーター分析 ............. <b class="tl-p">76</b> <span class="tl-warn">▲ 上端シグナル発火</span>',rev:'ag2',d:420},
+ {h:'  ├ ⑥No.29 2連率<b>45.6%</b> <span class="tl-warn">全国5位 ▲上端</span>・展示T最速6.84',cls:'sub',d:120},
+ {h:'  ├ ②No.28 2連率<b>23.6%</b> 全国40位 ▼下端・機力最弱',cls:'sub',d:110},
+ {h:'  └ 中間4機（26位/25位/22位/14位）は補正棄却＝両端のみ採用',cls:'sub',d:130},
+ {h:'▸ スジ分析 ................. <b class="tl-p">80</b> <span class="tl-ok">✓</span>',rev:'ag3',d:400},
+ {h:'  ├ ①先頭時の2着率: ②田村<b>80.0%</b>／④杉山50.0%／⑥前田50.0%',cls:'sub',d:120},
+ {h:'  ├ ②カベ薄（M40位）→ 差し残り確率 <span class="tl-warn">-12pt補正</span>',cls:'sub',d:110},
+ {h:'  └ 本線スジ: 1-4／1-5／1-6（2着スジの入れ替わりを想定）',cls:'sub',d:130},
+ {h:'▸ 直前観察 ................. <b class="tl-p">70</b> <span class="tl-ok">✓</span>',rev:'ag4',d:400},
+ {h:'  ├ 展示ST: ⑤<b>.00</b>抜群／③.09／②.12（①は.24＝進入乱れの影響）',cls:'sub',d:120},
+ {h:'  ├ 展示T: ⑥<b>6.84</b>最速／⑤6.85／②6.87（③6.97最遅）',cls:'sub',d:110},
+ {h:'  └ スタート展示で①が5コース → 本番は枠なり回帰と判定',cls:'sub',d:130},
+ {h:'▸ 荒れ分析 ................. <b class="tl-p">25</b> <span class="tl-dim">凪・堅い</span>',rev:'ag5',d:400},
+ {h:'  ├ 荒れ度分解: 風<b>+0.1</b>／波<b>+0.0</b>／攻撃筋<b>+1.2</b>／前づけ<b>0.0</b>',cls:'sub',d:120},
+ {h:'  └ 合計★1（/2.3）＝AI万舟率<b>10%</b>・堅い決着を本線視',cls:'sub',d:130},
+ {h:'<span class="tl-dim">────────────────────────────</span>',d:300},
+ {h:'▸ 展開シミュレーション 1マーク 10,000回試行 ... <span class="tl-ok">1号先マイ 77%</span>',rev:'ab-simu',d:450},
+ {h:'  ├ ①逃げ<b>77.2%</b>／②差し8.4%／⑥まくり差し<b>3.1%</b>（6コース減衰）',cls:'sub',d:120},
+ {h:'  └ 本線: ①先マイ・2着はスジで②④⑤⑥が競合、3着流し',cls:'sub',d:130},
+ {h:'▸ 期待値ゲート照合 18点走査 ....... <span class="tl-ok">3点通過</span> <span class="tl-dim">(期待値1超)</span>',rev:'ab-odds',d:450},
+ {h:'  ├ 1-2-3 13.2倍 × 推定6.0% ＝ 期待値0.79 <span class="tl-dim">✗棄却（人気1位）</span>',cls:'sub',d:130},
+ {h:'  ├ 1-3-2 21.1倍 × 推定4.5% ＝ 期待値0.95 <span class="tl-dim">✗棄却</span>',cls:'sub',d:120},
+ {h:'  ├ 1-4-2 20.4倍 × 推定5.8% ＝ 期待値<b>1.18</b> <span class="tl-ok">✓通過</span>',cls:'sub',d:120},
+ {h:'  ├ 1-5-2 21.4倍 × 推定5.5% ＝ 期待値<b>1.18</b> <span class="tl-ok">✓通過</span>',cls:'sub',d:120},
+ {h:'  └ 1-6-2 54.1倍 × 推定2.6% ＝ 期待値<b>1.41</b> <span class="tl-ok">✓通過 MAX</span>',cls:'sub',d:150},
+ {h:'▸ オッズ歪み検出: ①投票率64.3% vs AI予測<b>79.5%</b> ＝ <span class="tl-ok">過小評価（買い）</span>',d:420},
+ {h:'▸ 推奨買い目を生成 ......... <b class="tl-p">1-6-2 / 1-5-2 / 1-4-2</b>',rev:'ab-bets',d:450},
+ {h:'▸ 統合判断コンパイル ... <span class="tl-dim">6機能スコア加重＋期待値ゲート結果を統合</span>',rev:'ab-judge',d:450},
+ {h:'<span class="tl-fin">◎ 総合評価 82/100 — 判定「買い」</span>',rev:'verdict',d:700},
+ {h:'<span class="tl-ok">✓ 分析完了 15.4s</span> <span class="tl-dim">— フナヨミAI（検証8/100レース・boatrace.jp実測）</span>',d:420},
+ {h:'<span class="tl-p">$</span> <span class="tcaret"></span>',d:380},
+];
+function openAIDetail(){
+  document.getElementById('ov').classList.add('on');
+  document.getElementById('aidw').classList.add('on');
+  aiTimers.forEach(clearTimeout);aiTimers=[];
+  const log=document.getElementById('ailog');log.innerHTML='';
+  const res=document.getElementById('aires');res.scrollTop=0;
+  res.querySelectorAll('.aim-block,.agentgrid .al').forEach(b=>b.classList.remove('in'));
+  document.getElementById('ab-skel').classList.remove('off');
+  document.getElementById('aiscore').textContent='0';
+  let t=200;
+  AILOG.forEach(line=>{
+    t+=line.d;
+    aiTimers.push(setTimeout(()=>{
+      const div=document.createElement('div');
+      div.className='tl'+(line.cls?' '+line.cls:'');
+      div.innerHTML=line.h;
+      log.appendChild(div);log.scrollTop=log.scrollHeight;
+      if(!line.rev)return;
+      if(line.rev==='verdict'){
+        document.getElementById('ab-skel').classList.add('off');
+        document.getElementById('ab-verdict').classList.add('in');
+        res.scrollTo({top:0,behavior:'smooth'});
+        let c=0;const el=document.getElementById('aiscore');
+        const iv=setInterval(()=>{c+=3;if(c>=82){c=82;clearInterval(iv);}el.textContent=c;},22);
+      }else if(line.rev.startsWith('ag')){
+        document.getElementById('ab-agents').classList.add('in');
+        document.getElementById(line.rev).classList.add('in');
+      }else{
+        document.getElementById(line.rev).classList.add('in');
+      }
+    },t));
+  });
+}
+
+/* ===== 買い目メモ =====
+   設計：配分モードは「押した瞬間だけの一括計算（ワンショット）」。
+   その後の各行の金額は独立した入力として自由に上書きできる。
+   合成オッズは選択中のオッズのみから算出し、金額には一切左右されない。 */
+let SEL=new Map(),curTotal=3000,memoMode='even',memoSort='waku';
+[{c:'1-6-2',o:54.1},{c:'1-5-2',o:21.4},{c:'1-4-2',o:20.4}].forEach(b=>SEL.set(b.c,{...b,amt:100}));
+function fmt(n){return n.toLocaleString('ja-JP')}
+function synthOdds(){if(!SEL.size)return 0;return 1/[...SEL.values()].reduce((s,b)=>s+1/b.o,0)}
+function allocAll(){
+  const syn=synthOdds();
+  SEL.forEach(b=>{
+    if(memoMode==='flat')b.amt=Math.max(100,Math.round(curTotal/100)*100);
+    else if(memoMode==='pay')b.amt=Math.max(100,Math.round(curTotal/b.o/100)*100);
+    else b.amt=Math.max(100,Math.round(curTotal*syn/b.o/100)*100);
+  });
+}
+function rowsSorted(){
+  const r=[...SEL.values()];
+  if(memoSort==='odds')r.sort((a,b)=>b.o-a.o);
+  else r.sort((a,b)=>a.c.localeCompare(b.c,'ja',{numeric:true}));
+  return r;
+}
+function renderMemo(){
+  const rows=rowsSorted();
+  document.getElementById('msynth').textContent=rows.length?synthOdds().toFixed(1)+'倍':'—';
+  document.getElementById('mcount').textContent=rows.length;
+  document.getElementById('msub').textContent=`住之江 12R｜3連単 ${rows.length}点`;
+  const box=document.getElementById('mrows');
+  if(!rows.length){
+    box.innerHTML='<div class="memo-empty">選択された買い目はありません。<br>サマリーの「推奨買い目」や<br>オッズ期待値タブの行をタップすると追加されます。</div>';
+  }else{
+    box.innerHTML=rows.map(r=>`<div class="memo-row" data-combo="${r.c}"><div><div class="mr-c">${r.c}</div><div class="mr-o">3連単 ${r.o}倍</div></div><div><div class="mr-amtwrap"><input class="mr-in" type="number" min="1" value="${r.amt/100}" oninput="amtEdit('${r.c}',this)">00円</div><div class="mr-pay"></div></div><button class="mr-del" onclick="delBet('${r.c}')">削</button></div>`).join('');
+  }
+  updateCalc();updateFab();syncRows();
+}
+function updateCalc(){
+  const rows=[...SEL.values()],spent=rows.reduce((s,r)=>s+r.amt,0);
+  const minpay=rows.length?Math.min(...rows.map(r=>Math.round(r.amt*r.o))):0;
+  document.querySelectorAll('#mrows .memo-row').forEach(el=>{
+    const b=SEL.get(el.dataset.combo);if(!b)return;
+    const pay=Math.round(b.amt*b.o),bal=pay-spent;
+    el.querySelector('.mr-pay').innerHTML=`<b>払戻 ${fmt(pay)}</b> <span class="${bal>=0?'plus':'minus'}">${bal>=0?'+':''}${fmt(bal)}</span>`;
+  });
+  document.getElementById('mways').textContent=rows.length;
+  document.getElementById('mtotal').textContent=fmt(spent)+'円';
+  document.getElementById('mpay').textContent=fmt(minpay)+'円';
+}
+function amtEdit(c,input){const b=SEL.get(c);if(!b)return;b.amt=Math.max(1,parseInt(input.value)||1)*100;updateCalc();}
+function delBet(c){SEL.delete(c);renderMemo();}
+function clearBets(){SEL.clear();renderMemo();}
+function toggleBet(el){
+  const c=el.dataset.combo,o=parseFloat(el.dataset.odds);
+  if(SEL.has(c))SEL.delete(c);else SEL.set(c,{c,o,amt:100});
+  renderMemo();
+}
+function syncRows(){document.querySelectorAll('tr[data-combo],.rec[data-combo]').forEach(el=>el.classList.toggle('sel',SEL.has(el.dataset.combo)));}
+function updateFab(){
+  const n=SEL.size;
+  document.getElementById('fabbadge').textContent=n;
+  document.getElementById('fablbl').textContent=n?`買い目メモ｜合成 ${synthOdds().toFixed(1)}倍・${n}点`:'買い目メモ｜買い目なし';
+}
+function setMemo(v,btn){document.querySelectorAll('#mamt button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curTotal=v;allocAll();renderMemo();}
+function setMode(m,btn){
+  memoMode=m;document.querySelectorAll('#mmode button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  document.getElementById('mamtlbl').textContent=m==='even'?'合計金額':m==='pay'?'目標払戻額':'1点あたり金額';
+  document.getElementById('mnote').textContent=m==='even'?'均等配分＝どの買い目が的中しても払戻がほぼ同額になるよう、オッズの逆数比で振り分け（100円単位）':m==='pay'?'想定払戻＝目標払戻額÷オッズで各買い目の購入額を逆算（100円単位・各行独立）':'一括指定＝全買い目に同じ金額をそのまま入れる';
+  allocAll();renderMemo();
+}
+function setSort(s,btn){memoSort=s;btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderMemo();}
+function openMemo(){renderMemo();document.getElementById('ov').classList.add('on');document.getElementById('memo').classList.add('on');}
+allocAll();renderMemo();
+
+/* フローティングボタン：ドラッグで移動（位置はlocalStorageに記憶）・タップで開く */
+(function(){
+  const f=document.getElementById('memofab');
+  let px,py,ox,oy,drag=false,moved=false;
+  function place(x,y){
+    x=Math.max(6,Math.min(innerWidth-70,x));y=Math.max(6,Math.min(innerHeight-70,y));
+    f.style.left=x+'px';f.style.top=y+'px';f.style.right='auto';f.style.bottom='auto';
+  }
+  try{const p=JSON.parse(localStorage.getItem('kyotei-fab-pos'));if(p)place(p.x,p.y);}catch(e){}
+  f.addEventListener('pointerdown',e=>{drag=true;moved=false;px=e.clientX;py=e.clientY;const r=f.getBoundingClientRect();ox=r.left;oy=r.top;try{f.setPointerCapture(e.pointerId);}catch(err){}});
+  f.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    const dx=e.clientX-px,dy=e.clientY-py;
+    if(!moved&&Math.abs(dx)+Math.abs(dy)>7){moved=true;f.classList.add('dragging');}
+    if(moved)place(ox+dx,oy+dy);
+  });
+  f.addEventListener('pointerup',()=>{
+    drag=false;f.classList.remove('dragging');
+    if(moved){const r=f.getBoundingClientRect();localStorage.setItem('kyotei-fab-pos',JSON.stringify({x:r.left,y:r.top}));}
+    else openMemo();
+  });
+  window.addEventListener('resize',()=>{if(f.style.left)place(parseFloat(f.style.left),parseFloat(f.style.top));});
+})();
+
+function showTab(e,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  e.currentTarget.classList.add('active');document.getElementById(id).classList.add('active');
+}
+function toggleTheme(){
+  const h=document.documentElement,light=h.dataset.theme==='light';
+  h.dataset.theme=light?'':'light';
+  document.getElementById('ic-moon').style.display=light?'':'none';
+  document.getElementById('ic-sun').style.display=light?'none':'';
+  localStorage.setItem('kyotei-theme-terminal',h.dataset.theme);
+}
+(function(){const s=localStorage.getItem('kyotei-theme-terminal');if(s==='light'){document.documentElement.dataset.theme='light';document.getElementById('ic-moon').style.display='none';document.getElementById('ic-sun').style.display='';}})();
+setTimeout(()=>{let c=0;const el=document.getElementById('heronum');const iv=setInterval(()=>{c+=2;if(c>=82){c=82;clearInterval(iv);}el.textContent=c;},26);},550);
+</script>
+</body>
+</html>

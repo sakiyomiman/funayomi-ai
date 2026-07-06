@@ -1,0 +1,14 @@
+# 作業中ファイル（fetch/engineが実行時に吐く）
+work/
+__pycache__/
+*.pyc
+.DS_Store
+
+# 実行時に生成される生データ・成果物（利用者が自分で作る／育てる）
+data/motor/
+data/races/
+races/*.html
+state/
+verify/out/
+
+# brain と data/experiments は追跡する（配布時点の育った脳・検証ログ＝プロジェクトの中身）
