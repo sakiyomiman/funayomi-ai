@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-フナヨミAI — engine.py（決定的計算エンジン・LLM不使用）
+サキヨミAI — engine.py（決定的計算エンジン・LLM不使用）
 race.json → 台帳×選手力×番長×荒れ度×スジ×期待値ゲート×資金配分 → analysis.json
 
 設計正本:

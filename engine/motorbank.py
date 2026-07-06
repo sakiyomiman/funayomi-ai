@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-フナヨミAI — motorbank.py（会場公式サイトのモーターデータ取得＋キャッシュ）
+サキヨミAI — motorbank.py（会場公式サイトのモーターデータ取得＋キャッシュ）
 
 設計（2026-07-05 Sakiyomi AI Lab 設計）:
   - 予想時に各会場の公式サイト（C層）からモーターデータを取る

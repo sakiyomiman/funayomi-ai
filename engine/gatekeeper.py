@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-フナヨミAI — gatekeeper.py（オッズ番人AI・第4段）
+サキヨミAI — gatekeeper.py（オッズ番人AI・第4段）
 
 役割: 「当たるか」ではなく「この配当なら買っていいか」を判定する。
       予想（gpts式・オッズフリー）が出した買い目に対して、削る/見送るだけ。

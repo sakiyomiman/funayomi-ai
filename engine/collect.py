@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-フナヨミAI — collect.py（検証用レースデータ一括収集・並列）
+サキヨミAI — collect.py（検証用レースデータ一括収集・並列）
 出走表/直前情報/オッズ/結果 の4点セットを data/races/{hd}_{jcd}_{rno}.json に貯める。
 一度貯めたら replay.py で何度でも瞬時に再分析できる（収集と分析の分離）。
 
