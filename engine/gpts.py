@@ -176,7 +176,7 @@ def inject(race, y, analysis_path):
         analysis["allocation"] = [{**r, "amt": amt,
                                    "pay": round(amt * r["odds"]) if r["odds"] else 0} for r in rows]
         analysis["scores"]["verdict"] = "買い" if y["gpts_star"] == 1 else "小口勝負"
-    analysis["sakiyomi"] = {"engine": "sakiyomi v1.0 (gpts+brain+guard)",
+    analysis["funayomi"] = {"engine": "funayomi v1.0 (gpts+brain+guard)",
                             "star": y["gpts_star"], "status": y["final_analysis_status"],
                             "scenario": y["scenario"]}
     Path(analysis_path).write_text(json.dumps(analysis, ensure_ascii=False, indent=1), encoding="utf-8")

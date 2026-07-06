@@ -14,7 +14,7 @@
 
 ```bash
 git clone https://github.com/sakiyomiman/funayomi-ai
-cd sakiyomi-ai
+cd funayomi-ai
 ```
 
 gitが分からない場合は、GitHubのページ右上「Code」→「Download ZIP」でダウンロードして解凍しても同じです。
